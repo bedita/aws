@@ -24,6 +24,8 @@ Email::setDsnClassMap([
 ]);
 
 // Register S3 filesystem adapter.
-FilesystemRegistry::setDsnClassMap([
-    's3' => S3Adapter::class,
-]);
+if (class_exists('BEdita\Core\Filesystem\FilesystemRegistry')) {
+    FilesystemRegistry::setDsnClassMap([
+        's3' => S3Adapter::class,
+    ]);
+}
