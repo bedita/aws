@@ -29,7 +29,7 @@ trait AwsConfigTrait
      */
     protected function reformatConfig(array $config)
     {
-        if (isset($config['username']) && isset($config['password'])) {
+        if (!empty($config['username']) && !empty($config['password'])) {
             $config['credentials'] = [
                 'key' => $config['username'],
                 'secret' => $config['password'],
