@@ -34,6 +34,7 @@ class S3Adapter extends FilesystemAdapter
     protected $_defaultConfig = [
         'region' => null,
         'version' => 'latest',
+        'visibility' => 'public',
     ];
 
     /**
