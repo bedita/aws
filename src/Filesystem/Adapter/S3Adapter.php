@@ -55,14 +55,26 @@ class S3Adapter extends FilesystemAdapter
     }
 
     /**
+     * Get AWS S3 client.
+     *
+     * @return \Aws\S3\S3Client
+     */
+    protected function getClient()
+    {
+        if (!empty($this->client)) {
+            return $this->client;
+        }
+
+        return $this->client = new S3Client($this->getConfig());
+    }
+
+    /**
      * {@inheritDoc}
      */
     protected function buildAdapter(array $config)
     {
-        $this->client = new S3Client($this->getConfig());
-
         return new AwsS3Adapter(
-            $this->client,
+            $this->getClient(),
             $this->getConfig('host'),
             $this->getConfig('path'),
             (array)$this->getConfig('options')
@@ -78,7 +90,7 @@ class S3Adapter extends FilesystemAdapter
             return parent::getPublicUrl($path);
         }
 
-        return $this->client->getObjectUrl(
+        return $this->getClient()->getObjectUrl(
             $this->getConfig('host'),
             $this->getConfig('path') . $path
         );
