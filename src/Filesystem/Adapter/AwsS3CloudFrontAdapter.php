@@ -34,8 +34,9 @@ class AwsS3CloudFrontAdapter extends AwsS3Adapter
      */
     public function copy($path, $newpath)
     {
+        $existed = $this->has($newpath);
         $result = parent::copy($path, $newpath);
-        if ($result !== false) {
+        if ($result !== false && $existed) {
             $this->createCloudFrontInvalidation($newpath);
         }
 
@@ -47,8 +48,9 @@ class AwsS3CloudFrontAdapter extends AwsS3Adapter
      */
     public function delete($path)
     {
+        $existed = $this->has($path);
         $result = parent::delete($path);
-        if ($result !== false) {
+        if ($result !== false && $existed) {
             $this->createCloudFrontInvalidation($path);
         }
 
@@ -73,8 +75,9 @@ class AwsS3CloudFrontAdapter extends AwsS3Adapter
      */
     public function upload($path, $body, Config $config)
     {
+        $existed = $this->has($path);
         $result = parent::upload($path, $body, $config);
-        if ($result !== false) {
+        if ($result !== false && $existed) {
             $this->createCloudFrontInvalidation($path);
         }
 
