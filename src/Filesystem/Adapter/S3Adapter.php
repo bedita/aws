@@ -35,6 +35,7 @@ class S3Adapter extends FilesystemAdapter
         'region' => null,
         'version' => 'latest',
         'visibility' => 'public',
+        'distributionId' => null,
     ];
 
     /**
@@ -78,14 +79,12 @@ class S3Adapter extends FilesystemAdapter
     /**
      * Get AWS CloudFront client.
      *
-     * @return \Aws\CloudFront\CloudFrontClient|null
+     * @return \Aws\CloudFront\CloudFrontClient
      */
     protected function getCloudFrontClient()
     {
         if (!empty($this->cloudFrontClient)) {
             return $this->cloudFrontClient;
-        } elseif ($this->getConfig('distributionId') === null) {
-            return null;
         }
 
         return $this->cloudFrontClient = new CloudFrontClient($this->getConfig());
@@ -96,12 +95,23 @@ class S3Adapter extends FilesystemAdapter
      */
     protected function buildAdapter(array $config)
     {
+        $cloudFrontClient = null;
+        $path = $this->getConfig('path');
+        $options = (array)$this->getConfig('options');
+        $distributionId = $this->getConfig('distributionId');
+        if ($distributionId !== null) {
+            $cloudFrontClient = $this->getCloudFrontClient();
+            $cloudFrontPathPrefix = $this->getConfig('cloudfrontPathPrefix', $path);
+            $options += compact('distributionId', 'cloudFrontPathPrefix');
+        }
+
         return new AwsS3CloudFrontAdapter(
             $this->getClient(),
             $this->getConfig('host'),
-            $this->getConfig('path'),
-            (array)$this->getConfig('options'),
-            $this->getCloudFrontClient()
+            $path,
+            $options,
+            true,
+            $cloudFrontClient
         );
     }
 

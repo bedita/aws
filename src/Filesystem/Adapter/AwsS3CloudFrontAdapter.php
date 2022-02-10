@@ -90,11 +90,11 @@ class AwsS3CloudFrontAdapter extends AwsS3Adapter
     protected function applyCloudFrontPathPrefix($path): string
     {
         $path = '/' . ltrim($path, '/');
-        if (empty($this->options['cloudfrontPathPrefix'])) {
+        if (empty($this->options['cloudFrontPathPrefix'])) {
             return $path;
         }
 
-        return '/' . ltrim($this->options['cloudfrontPathPrefix'], '/') . $path;
+        return '/' . trim($this->options['cloudFrontPathPrefix'], '/') . $path;
     }
 
     /**
