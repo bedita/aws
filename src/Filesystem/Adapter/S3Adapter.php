@@ -13,10 +13,10 @@
 
 namespace BEdita\AWS\Filesystem\Adapter;
 
+use Aws\CloudFront\CloudFrontClient;
 use Aws\S3\S3Client;
 use BEdita\AWS\AwsConfigTrait;
 use BEdita\Core\Filesystem\FilesystemAdapter;
-use League\Flysystem\AwsS3v3\AwsS3Adapter;
 
 /**
  * AWS S3 adapter.
@@ -45,6 +45,13 @@ class S3Adapter extends FilesystemAdapter
     protected $client;
 
     /**
+     * AWS CloudFront client.
+     *
+     * @var \Aws\CloudFront\CloudFrontClient|null
+     */
+    protected $cloudFrontClient;
+
+    /**
      * {@inheritDoc}
      */
     public function initialize(array $config)
@@ -69,15 +76,32 @@ class S3Adapter extends FilesystemAdapter
     }
 
     /**
+     * Get AWS CloudFront client.
+     *
+     * @return \Aws\CloudFront\CloudFrontClient|null
+     */
+    protected function getCloudFrontClient()
+    {
+        if (!empty($this->cloudFrontClient)) {
+            return $this->cloudFrontClient;
+        } elseif ($this->getConfig('distributionId') === null) {
+            return null;
+        }
+
+        return $this->cloudFrontClient = new CloudFrontClient($this->getConfig());
+    }
+
+    /**
      * {@inheritDoc}
      */
     protected function buildAdapter(array $config)
     {
-        return new AwsS3Adapter(
+        return new AwsS3CloudFrontAdapter(
             $this->getClient(),
             $this->getConfig('host'),
             $this->getConfig('path'),
-            (array)$this->getConfig('options')
+            (array)$this->getConfig('options'),
+            $this->getCloudFrontClient()
         );
     }
 
