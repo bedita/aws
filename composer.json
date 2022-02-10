@@ -3,10 +3,11 @@
     "description": "BEdita 4 plugin for applications that use AWS resources such as S3",
     "type": "cakephp-plugin",
     "require": {
-        "php": ">=5.6.0",
+        "php": ">=7.2.0",
+        "league/flysystem": "^1.0.53",
         "league/flysystem-aws-s3-v3": "^1.0.0",
         "aws/aws-sdk-php": "^3.0.0",
-        "cakephp/cakephp": "~3.4"
+        "cakephp/cakephp": "~3.10"
     },
     "require-dev": {
         "phpunit/phpunit": "*"
