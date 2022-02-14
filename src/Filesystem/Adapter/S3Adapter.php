@@ -13,10 +13,10 @@
 
 namespace BEdita\AWS\Filesystem\Adapter;
 
+use Aws\CloudFront\CloudFrontClient;
 use Aws\S3\S3Client;
 use BEdita\AWS\AwsConfigTrait;
 use BEdita\Core\Filesystem\FilesystemAdapter;
-use League\Flysystem\AwsS3v3\AwsS3Adapter;
 
 /**
  * AWS S3 adapter.
@@ -35,6 +35,7 @@ class S3Adapter extends FilesystemAdapter
         'region' => null,
         'version' => 'latest',
         'visibility' => 'public',
+        'distributionId' => null,
     ];
 
     /**
@@ -43,6 +44,13 @@ class S3Adapter extends FilesystemAdapter
      * @var \Aws\S3\S3Client
      */
     protected $client;
+
+    /**
+     * AWS CloudFront client.
+     *
+     * @var \Aws\CloudFront\CloudFrontClient|null
+     */
+    protected $cloudFrontClient;
 
     /**
      * {@inheritDoc}
@@ -69,15 +77,41 @@ class S3Adapter extends FilesystemAdapter
     }
 
     /**
+     * Get AWS CloudFront client.
+     *
+     * @return \Aws\CloudFront\CloudFrontClient
+     */
+    protected function getCloudFrontClient()
+    {
+        if (!empty($this->cloudFrontClient)) {
+            return $this->cloudFrontClient;
+        }
+
+        return $this->cloudFrontClient = new CloudFrontClient($this->getConfig());
+    }
+
+    /**
      * {@inheritDoc}
      */
     protected function buildAdapter(array $config)
     {
-        return new AwsS3Adapter(
+        $cloudFrontClient = null;
+        $path = $this->getConfig('path');
+        $options = (array)$this->getConfig('options');
+        $distributionId = $this->getConfig('distributionId');
+        if ($distributionId !== null) {
+            $cloudFrontClient = $this->getCloudFrontClient();
+            $cloudFrontPathPrefix = $this->getConfig('cloudfrontPathPrefix', $path);
+            $options += compact('distributionId', 'cloudFrontPathPrefix');
+        }
+
+        return new AwsS3CloudFrontAdapter(
             $this->getClient(),
             $this->getConfig('host'),
-            $this->getConfig('path'),
-            (array)$this->getConfig('options')
+            $path,
+            $options,
+            true,
+            $cloudFrontClient
         );
     }
 
