@@ -19,6 +19,9 @@ use Aws\S3\S3ClientInterface;
 use League\Flysystem\AwsS3v3\AwsS3Adapter;
 use League\Flysystem\Config;
 
+/**
+ * AWS S3 adapter that creates a CloudFront invalidation every time an object is updated or deleted.
+ */
 class AwsS3CloudFrontAdapter extends AwsS3Adapter
 {
     /**
