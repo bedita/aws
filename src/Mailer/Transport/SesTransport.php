@@ -1,7 +1,7 @@
 <?php
 /**
  * BEdita, API-first content management framework
- * Copyright 2017 ChannelWeb Srl, Chialab Srl
+ * Copyright 2022 Atlas Srl, Chialab Srl
  *
  * This file is part of BEdita: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -25,7 +25,6 @@ use Cake\Mailer\Email;
  */
 class SesTransport extends AbstractTransport
 {
-
     use AwsConfigTrait;
 
     /**
@@ -58,7 +57,7 @@ class SesTransport extends AbstractTransport
      *
      * @return \Aws\Ses\SesClient
      */
-    protected function getClient()
+    protected function getClient(): SesClient
     {
         if (!empty($this->client)) {
             return $this->client;
@@ -70,7 +69,7 @@ class SesTransport extends AbstractTransport
     /**
      * {@inheritDoc}
      */
-    public function send(Email $email)
+    public function send(Email $email): array
     {
         $headers = $email->getHeaders(['from', 'sender', 'replyTo', 'readReceipt', 'returnPath', 'to', 'cc', 'bcc', 'subject']);
         foreach ($headers as $key => $header) {

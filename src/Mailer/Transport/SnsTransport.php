@@ -1,7 +1,7 @@
 <?php
 /**
  * BEdita, API-first content management framework
- * Copyright 2017 ChannelWeb Srl, Chialab Srl
+ * Copyright 2022 Atlas Srl, Chialab Srl
  *
  * This file is part of BEdita: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -25,7 +25,6 @@ use Cake\Mailer\Email;
  */
 class SnsTransport extends AbstractTransport
 {
-
     use AwsConfigTrait;
 
     /**
@@ -58,7 +57,7 @@ class SnsTransport extends AbstractTransport
      *
      * @return \Aws\Sns\SnsClient
      */
-    protected function getClient()
+    protected function getClient(): SnsClient
     {
         if (!empty($this->client)) {
             return $this->client;
@@ -73,7 +72,7 @@ class SnsTransport extends AbstractTransport
      * @param \Cake\Mailer\Email $email Email instance.
      * @return array
      */
-    public function send(Email $email)
+    public function send(Email $email): array
     {
         $from = $email->getFrom();
         $to = $email->getTo();
