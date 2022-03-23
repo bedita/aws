@@ -1,7 +1,7 @@
 <?php
 /**
  * BEdita, API-first content management framework
- * Copyright 2017 ChannelWeb Srl, Chialab Srl
+ * Copyright 2022 Atlas Srl, Chialab Srl
  *
  * This file is part of BEdita: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -17,6 +17,7 @@ use Aws\CloudFront\CloudFrontClient;
 use Aws\S3\S3Client;
 use BEdita\AWS\AwsConfigTrait;
 use BEdita\Core\Filesystem\FilesystemAdapter;
+use League\Flysystem\AdapterInterface;
 
 /**
  * AWS S3 adapter.
@@ -25,7 +26,6 @@ use BEdita\Core\Filesystem\FilesystemAdapter;
  */
 class S3Adapter extends FilesystemAdapter
 {
-
     use AwsConfigTrait;
 
     /**
@@ -55,7 +55,7 @@ class S3Adapter extends FilesystemAdapter
     /**
      * {@inheritDoc}
      */
-    public function initialize(array $config)
+    public function initialize(array $config): bool
     {
         $config = $this->reformatConfig($config);
 
@@ -67,7 +67,7 @@ class S3Adapter extends FilesystemAdapter
      *
      * @return \Aws\S3\S3Client
      */
-    protected function getClient()
+    protected function getClient(): S3Client
     {
         if (!empty($this->client)) {
             return $this->client;
@@ -81,7 +81,7 @@ class S3Adapter extends FilesystemAdapter
      *
      * @return \Aws\CloudFront\CloudFrontClient
      */
-    protected function getCloudFrontClient()
+    protected function getCloudFrontClient(): CloudFrontClient
     {
         if (!empty($this->cloudFrontClient)) {
             return $this->cloudFrontClient;
@@ -93,7 +93,7 @@ class S3Adapter extends FilesystemAdapter
     /**
      * {@inheritDoc}
      */
-    protected function buildAdapter(array $config)
+    protected function buildAdapter(array $config): AdapterInterface
     {
         $cloudFrontClient = null;
         $path = $this->getConfig('path');
@@ -118,7 +118,7 @@ class S3Adapter extends FilesystemAdapter
     /**
      * {@inheritDoc}
      */
-    public function getPublicUrl($path)
+    public function getPublicUrl($path): string
     {
         if (!empty($this->_config['baseUrl'])) {
             return parent::getPublicUrl($path);
