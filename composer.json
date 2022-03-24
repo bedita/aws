@@ -15,6 +15,9 @@
         "cakephp/plugin-installer": "^1.0",
         "phpunit/phpunit": "^5.7.14|^6.0"
     },
+    "suggest": {
+        "cakephp/authentication": "^1.0"
+    },
     "autoload": {
         "psr-4": {
             "BEdita\\AWS\\": "src"
@@ -22,8 +25,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "BEdita\\AWS\\Test\\": "tests",
-            "Cake\\Test\\": "./vendor/cakephp/cakephp/tests"
+            "BEdita\\AWS\\Test\\": "tests"
         }
     },
     "scripts": {
