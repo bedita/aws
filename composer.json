@@ -8,7 +8,7 @@
         "league/flysystem-aws-s3-v3": "^1.0.0",
         "aws/aws-sdk-php": "^3.0.0",
         "cakephp/cakephp": "^3.6.0",
-        "bedita/core": "^4.0.0"
+        "bedita/core": "*"
     },
     "require-dev": {
         "phpunit/phpunit": "*"
