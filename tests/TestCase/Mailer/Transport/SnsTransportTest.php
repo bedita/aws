@@ -43,7 +43,7 @@ class SnsTransportTest extends TestCase
             'password' => 'example',
             'region' => 'eu-south-1',
         ];
-        $snsTransport = new class($config) extends SnsTransport {
+        $snsTransport = new class ($config) extends SnsTransport {
             public function getClient(): SnsClient
             {
                 return parent::getClient();

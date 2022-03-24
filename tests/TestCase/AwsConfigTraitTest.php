@@ -101,7 +101,9 @@ class AwsConfigTraitTest extends TestCase
     public function testReformatConfig(array $expected, array $config): void
     {
         $subject = new class {
-            use AwsConfigTrait { reformatConfig as public; }
+            use AwsConfigTrait {
+                reformatConfig as public;
+            }
         };
 
         $actual = $subject->reformatConfig($config);

@@ -52,7 +52,7 @@ class PluginTest extends TestCase
      */
     public function testBootstrap(): void
     {
-        $app = new class(CONFIG) extends BaseApplication {
+        $app = new class (CONFIG) extends BaseApplication {
             /**
              * {@inheritDoc}
              */

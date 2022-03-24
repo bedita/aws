@@ -45,7 +45,7 @@ class SesTransportTest extends TestCase
             'password' => 'example',
             'region' => 'eu-south-1',
         ];
-        $sesTransport = new class($config) extends SesTransport {
+        $sesTransport = new class ($config) extends SesTransport {
             public function getClient(): SesClient
             {
                 return parent::getClient();
