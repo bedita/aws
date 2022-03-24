@@ -17,7 +17,6 @@ use Aws\Command;
 use Aws\Result;
 use Aws\Ses\SesClient;
 use BEdita\AWS\Mailer\Transport\SesTransport;
-use BEdita\AWS\Mailer\Transport\SnsTransport;
 use Cake\I18n\FrozenTime;
 use Cake\Mailer\Email;
 use Cake\Utility\Text;
@@ -46,7 +45,7 @@ class SesTransportTest extends TestCase
             'password' => 'example',
             'region' => 'eu-south-1',
         ];
-        $snsTransport = new class($config) extends SesTransport {
+        $sesTransport = new class($config) extends SesTransport {
             public function getClient(): SesClient
             {
                 return parent::getClient();
@@ -63,9 +62,9 @@ class SesTransportTest extends TestCase
                 'secret' => 'example',
             ],
         ];
-        static::assertAttributeSame($expected, '_config', $snsTransport);
+        static::assertAttributeSame($expected, '_config', $sesTransport);
 
-        $client = $snsTransport->getClient();
+        $client = $sesTransport->getClient();
         static::assertSame('eu-south-1', $client->getRegion());
         /** @var \Aws\Credentials\Credentials $credentials */
         $credentials = $client->getCredentials()->wait();
@@ -73,12 +72,12 @@ class SesTransportTest extends TestCase
         static::assertSame('example', $credentials->getSecretKey());
         static::assertNull($credentials->getSecurityToken());
 
-        $anotherClient = $snsTransport->getClient();
+        $anotherClient = $sesTransport->getClient();
         static::assertSame($client, $anotherClient, 'SNS client is not preserved');
     }
 
     /**
-     * Data provider for {@see SnsTransportTest::testSend()} test case.
+     * Data provider for {@see SesTransportTest::testSend()} test case.
      *
      * @return array
      */
@@ -115,7 +114,7 @@ class SesTransportTest extends TestCase
     }
 
     /**
-     * Test {@see SnsTransport::send()} method.
+     * Test {@see SesTransport::send()} method.
      *
      * @param string $expectedHeaders Expected headers.
      * @param string $expectedMessage Expected message.
