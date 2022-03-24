@@ -164,7 +164,15 @@ class SnsTransportTest extends TestCase
             return new Result([]);
         };
 
-        $transport = new SnsTransport($config + ['region' => 'eu-south-1', 'handler' => $handler]);
+        $config += [
+            'region' => 'eu-south-1',
+            'credentials' => [
+                'key' => 'AKIAEXAMPLE',
+                'secret' => 'example',
+            ],
+            'handler' => $handler,
+        ];
+        $transport = new SnsTransport($config);
 
         $actual = $email->setTransport($transport)->send($content);
 

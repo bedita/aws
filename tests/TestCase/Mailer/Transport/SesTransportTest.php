@@ -139,7 +139,15 @@ class SesTransportTest extends TestCase
             return new Result([]);
         };
 
-        $transport = new SesTransport(['region' => 'eu-south-1', 'handler' => $handler]);
+        $config += [
+            'region' => 'eu-south-1',
+            'credentials' => [
+                'key' => 'AKIAEXAMPLE',
+                'secret' => 'example',
+            ],
+            'handler' => $handler,
+        ];
+        $transport = new SesTransport($config);
 
         $expected = ['headers' => $expectedHeaders, 'message' => $expectedMessage];
         $actual = $email->setTransport($transport)->send($content);
