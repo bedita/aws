@@ -95,8 +95,8 @@ jobs:
       fail-fast: false
       matrix:
         php:
-          - '7.4'
-          - '7.4'
+          - '7.2'
+          - '7.3'
           - '7.4'
 
     env:
