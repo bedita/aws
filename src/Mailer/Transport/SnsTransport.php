@@ -33,6 +33,7 @@ class SnsTransport extends AbstractTransport
     protected $_defaultConfig = [
         'region' => null,
         'version' => 'latest',
+        'smsType' => null,
     ];
 
     /**

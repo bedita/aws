@@ -24,6 +24,7 @@ use Cake\Cache\Engine\ArrayEngine;
 use Cake\Cache\Engine\NullEngine;
 use Cake\Core\Configure;
 use Cake\Datasource\ConnectionManager;
+use Cake\I18n\FrozenTime;
 use Cake\Log\Engine\ConsoleLog;
 use Cake\Log\Log;
 use Cake\ORM\TableRegistry;
@@ -104,6 +105,7 @@ ConnectionManager::alias('test', 'default');
 
 Router::reload();
 Security::setSalt('BEDITA');
+FrozenTime::setTestNow('2022-01-01T00:00:00+01:00');
 
 // clear all before running tests
 TableRegistry::getTableLocator()->clear();

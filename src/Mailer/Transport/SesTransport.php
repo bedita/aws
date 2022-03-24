@@ -28,6 +28,13 @@ class SesTransport extends AbstractTransport
     use AwsConfigTrait;
 
     /**
+     * End-of-line.
+     *
+     * @var string
+     */
+    protected const EOL = "\r\n";
+
+    /**
      * {@inheritDoc}
      */
     protected $_defaultConfig = [
@@ -73,15 +80,15 @@ class SesTransport extends AbstractTransport
     {
         $headers = $email->getHeaders(['from', 'sender', 'replyTo', 'readReceipt', 'returnPath', 'to', 'cc', 'bcc', 'subject']);
         foreach ($headers as $key => $header) {
-            $headers[$key] = str_replace(["\r", "\n"], '', $header);
+            $headers[$key] = str_replace(str_split(static::EOL), '', $header);
         }
-        $headers = $this->_headersToString($headers, PHP_EOL);
+        $headers = $this->_headersToString($headers, static::EOL);
 
-        $message = implode(PHP_EOL, $email->message());
+        $message = implode(static::EOL, $email->message());
 
         $this->getClient()->sendRawEmail([
             'RawMessage' => [
-                'Data' => $headers . PHP_EOL . PHP_EOL . $message,
+                'Data' => $headers . static::EOL . static::EOL . $message,
             ],
         ]);
 
