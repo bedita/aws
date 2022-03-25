@@ -45,7 +45,7 @@ class SesTransport extends AbstractTransport
     /**
      * AWS SES instance.
      *
-     * @var \Aws\Ses\SesClient
+     * @var \Aws\Ses\SesClient|null
      */
     protected $client;
 
@@ -56,7 +56,7 @@ class SesTransport extends AbstractTransport
     {
         $config = $this->reformatConfig($config);
 
-        return parent::__construct($config);
+        parent::__construct($config);
     }
 
     /**
@@ -70,7 +70,7 @@ class SesTransport extends AbstractTransport
             return $this->client;
         }
 
-        return $this->client = new SesClient($this->getConfig());
+        return $this->client = new SesClient((array)$this->getConfig());
     }
 
     /**
@@ -84,7 +84,7 @@ class SesTransport extends AbstractTransport
         }
         $headers = $this->_headersToString($headers, static::EOL);
 
-        $message = implode(static::EOL, $email->message());
+        $message = implode(static::EOL, (array)$email->message());
 
         $this->getClient()->sendRawEmail([
             'RawMessage' => [

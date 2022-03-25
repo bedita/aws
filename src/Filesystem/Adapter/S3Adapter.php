@@ -41,7 +41,7 @@ class S3Adapter extends FilesystemAdapter
     /**
      * AWS S3 client.
      *
-     * @var \Aws\S3\S3Client
+     * @var \Aws\S3\S3Client|null
      */
     protected $client;
 
@@ -73,7 +73,7 @@ class S3Adapter extends FilesystemAdapter
             return $this->client;
         }
 
-        return $this->client = new S3Client($this->getConfig());
+        return $this->client = new S3Client((array)$this->getConfig());
     }
 
     /**
@@ -87,7 +87,7 @@ class S3Adapter extends FilesystemAdapter
             return $this->cloudFrontClient;
         }
 
-        return $this->cloudFrontClient = new CloudFrontClient($this->getConfig());
+        return $this->cloudFrontClient = new CloudFrontClient((array)$this->getConfig());
     }
 
     /**

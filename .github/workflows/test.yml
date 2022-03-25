@@ -62,7 +62,7 @@ jobs:
         uses: 'shivammathur/setup-php@v2'
         with:
           php-version: '7.4'
-          tools: 'composer, phpstan'
+          tools: 'composer'
           extensions: 'mbstring, intl'
           coverage: 'none'
 
@@ -83,8 +83,7 @@ jobs:
         run: 'composer install --prefer-dist --no-interaction'
 
       - name: 'Run PHP STAN'
-        run: |
-          phpstan analyse --no-progress src
+        run: 'vendor/bin/phpstan analyse --no-progress --error-format=github'
 
   unit:
     name: 'Run unit tests'
@@ -112,8 +111,7 @@ jobs:
           php-version: '${{ matrix.php }}'
           tools: 'composer'
           extensions: 'mbstring, intl'
-          coverage: 'pcov'
-          ini-values: 'pcov.directory=., pcov.exclude="~vendor~"'
+          coverage: 'none' # Using `phpdbg`
 
       - name: 'Discover Composer cache directory'
         id: 'cachedir'
@@ -131,14 +129,11 @@ jobs:
       - name: 'Install dependencies with Composer'
         run: 'composer install --prefer-dist --no-interaction'
 
-      - name: 'Setup PCOV clobber'
-        run: 'composer require pcov/clobber && vendor/bin/pcov clobber'
-
       - name: 'Dump Composer autoloader'
         run: 'composer dump-autoload --classmap-authoritative --no-cache'
 
       - name: 'Run PHPUnit'
-        run: 'vendor/bin/phpunit --coverage-clover=clover.xml'
+        run: 'phpdbg -qrr vendor/bin/phpunit --coverage-clover=clover.xml'
 
       - name: 'Export coverage results'
         uses: 'codecov/codecov-action@v1'

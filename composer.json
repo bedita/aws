@@ -13,10 +13,8 @@
     "require-dev": {
         "cakephp/cakephp-codesniffer": "^3.0",
         "cakephp/plugin-installer": "^1.0",
-        "phpunit/phpunit": "^5.7.14|^6.0"
-    },
-    "suggest": {
-        "cakephp/authentication": "^1.0"
+        "phpunit/phpunit": "^5.7.14|^6.0",
+        "phpstan/phpstan": "^1.5"
     },
     "autoload": {
         "psr-4": {

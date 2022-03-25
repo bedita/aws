@@ -32,8 +32,13 @@ class AwsS3CloudFrontAdapter extends AwsS3Adapter
     protected $cloudfrontClient = null;
 
     /**
-     * @inheritdoc
+     * Adapter constructor.
      *
+     * @param \Aws\S3\S3ClientInterface $client S3 client.
+     * @param string $bucket Bucket name.
+     * @param string $prefix Object prefix.
+     * @param array $options Additional options.
+     * @param bool $streamReads Whether reads should be streamed.
      * @param \Aws\CloudFront\CloudFrontClient|null $cloudfrontClient CloudFront client instance, or `null`.
      */
     public function __construct(S3ClientInterface $client, $bucket, $prefix = '', array $options = [], $streamReads = true, CloudFrontClient $cloudfrontClient = null)
@@ -44,7 +49,7 @@ class AwsS3CloudFrontAdapter extends AwsS3Adapter
     }
 
     /**
-     * @inheritdoc
+     * {@inheritDoc}
      */
     public function copy($path, $newpath)
     {
@@ -58,7 +63,7 @@ class AwsS3CloudFrontAdapter extends AwsS3Adapter
     }
 
     /**
-     * @inheritdoc
+     * {@inheritDoc}
      */
     public function delete($path)
     {
@@ -72,7 +77,7 @@ class AwsS3CloudFrontAdapter extends AwsS3Adapter
     }
 
     /**
-     * @inheritdoc
+     * {@inheritDoc}
      */
     public function deleteDir($dirname)
     {
@@ -85,7 +90,7 @@ class AwsS3CloudFrontAdapter extends AwsS3Adapter
     }
 
     /**
-     * @inheritdoc
+     * {@inheritDoc}
      */
     public function upload($path, $body, Config $config)
     {
@@ -104,7 +109,7 @@ class AwsS3CloudFrontAdapter extends AwsS3Adapter
      * @param string $path Path to prefix.
      * @return string
      */
-    protected function applyCloudFrontPathPrefix($path): string
+    protected function applyCloudFrontPathPrefix(string $path): string
     {
         $path = '/' . ltrim($path, '/');
         if (empty($this->options['cloudFrontPathPrefix'])) {
@@ -120,7 +125,7 @@ class AwsS3CloudFrontAdapter extends AwsS3Adapter
      * @param string $path Path.
      * @return void
      */
-    protected function createCloudFrontInvalidation($path): void
+    protected function createCloudFrontInvalidation(string $path): void
     {
         if ($this->cloudfrontClient === null || empty($this->options['distributionId'])) {
             return;
