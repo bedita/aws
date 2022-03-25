@@ -17,6 +17,7 @@ use Aws\CloudFront\CloudFrontClient;
 use Aws\S3\S3Client;
 use BEdita\AWS\AwsConfigTrait;
 use BEdita\Core\Filesystem\FilesystemAdapter;
+use InvalidArgumentException;
 use League\Flysystem\AdapterInterface;
 
 /**
@@ -33,6 +34,7 @@ class S3Adapter extends FilesystemAdapter
      */
     protected $_defaultConfig = [
         'region' => null,
+        'bucket' => null,
         'version' => 'latest',
         'visibility' => 'public',
         'distributionId' => null,
@@ -57,9 +59,34 @@ class S3Adapter extends FilesystemAdapter
      */
     public function initialize(array $config): bool
     {
-        $config = $this->reformatCredentials($config);
+        $config = $this->reformatConfig($config);
+        if (empty($config['bucket']) || !is_string($config['bucket'])) {
+            throw new InvalidArgumentException('Bucket name must be a non-empty string');
+        }
+        if (!empty($config['prefix']) && !is_string($config['prefix'])) {
+            throw new InvalidArgumentException('Prefix must be omitted, or be a string');
+        }
 
         return parent::initialize($config);
+    }
+
+    /**
+     * Reformat configuration.
+     *
+     * @param array $config Configuration.
+     * @return array
+     */
+    protected function reformatConfig(array $config): array
+    {
+        $config = $this->reformatCredentials($config);
+        if (!empty($config['host'])) {
+            $config['bucket'] = $config['bucket'] ?? $config['host'];
+        }
+        if (!empty($config['path'])) {
+            $config['prefix'] = $config['prefix'] ?? substr($config['path'], 1);
+        }
+
+        return $config;
     }
 
     /**
@@ -96,19 +123,19 @@ class S3Adapter extends FilesystemAdapter
     protected function buildAdapter(array $config): AdapterInterface
     {
         $cloudFrontClient = null;
-        $path = $this->getConfig('path');
+        $prefix = $this->getConfig('prefix');
         $options = (array)$this->getConfig('options');
         $distributionId = $this->getConfig('distributionId');
         if ($distributionId !== null) {
             $cloudFrontClient = $this->getCloudFrontClient();
-            $cloudFrontPathPrefix = $this->getConfig('cloudfrontPathPrefix', $path);
+            $cloudFrontPathPrefix = $this->getConfig('cloudfrontPathPrefix', $prefix);
             $options += compact('distributionId', 'cloudFrontPathPrefix');
         }
 
         return new AwsS3CloudFrontAdapter(
             $this->getClient(),
-            $this->getConfig('host'),
-            $path,
+            $this->getConfig('bucket'),
+            $prefix,
             $options,
             true,
             $cloudFrontClient
@@ -125,8 +152,8 @@ class S3Adapter extends FilesystemAdapter
         }
 
         return $this->getClient()->getObjectUrl(
-            $this->getConfig('host'),
-            $this->getConfig('path') . $path
+            $this->getConfig('bucket'),
+            $this->getConfig('prefix') . $path
         );
     }
 }
