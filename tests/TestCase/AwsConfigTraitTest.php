@@ -24,11 +24,11 @@ use PHPUnit\Framework\TestCase;
 class AwsConfigTraitTest extends TestCase
 {
     /**
-     * Data provider for {@see AwsConfigTraitTest::testReformatConfig()} test case.
+     * Data provider for {@see AwsConfigTraitTest::testReformatCredentials()} test case.
      *
      * @return array[]
      */
-    public function reformatConfigProvider(): array
+    public function reformatCredentialsProvider(): array
     {
         return [
             'no username, no password' => [
@@ -52,7 +52,7 @@ class AwsConfigTraitTest extends TestCase
                     'region' => 'eu-south-1',
                     'username' => 'AKIAEXAMPLE',
                     'credentials' => [
-                        'key' => null,
+                        'key' => 'AKIAEXAMPLE',
                         'secret' => null,
                     ],
                 ],
@@ -85,28 +85,48 @@ class AwsConfigTraitTest extends TestCase
                     ],
                 ],
             ],
+            'preserve existing values' => [
+                [
+                    'region' => 'eu-south-1',
+                    'username' => 'AKIAOVERWRITE',
+                    'password' => 'example+overwrite==',
+                    'credentials' => [
+                        'key' => 'AKIAEXAMPLE',
+                        'secret' => 'example==',
+                    ],
+                ],
+                [
+                    'region' => 'eu-south-1',
+                    'username' => 'AKIAOVERWRITE',
+                    'password' => 'example+overwrite==',
+                    'credentials' => [
+                        'key' => 'AKIAEXAMPLE',
+                        'secret' => 'example==',
+                    ],
+                ],
+            ],
         ];
     }
 
     /**
-     * Test {@see AwsConfigTrait::reformatConfig()} method.
+     * Test {@see AwsConfigTrait::reformatCredentials()} method.
      *
      * @param array $expected Expected result.
      * @param array $config Input configuration.
      * @return void
      *
-     * @dataProvider reformatConfigProvider()
-     * @covers ::reformatConfig()
+     * @dataProvider reformatCredentialsProvider()
+     * @covers ::reformatCredentials()
      */
-    public function testReformatConfig(array $expected, array $config): void
+    public function testReformatCredentials(array $expected, array $config): void
     {
         $subject = new class {
             use AwsConfigTrait {
-                reformatConfig as public;
+                reformatCredentials as public;
             }
         };
 
-        $actual = $subject->reformatConfig($config);
+        $actual = $subject->reformatCredentials($config);
 
         static::assertSame($expected, $actual);
     }

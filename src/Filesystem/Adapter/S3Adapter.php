@@ -57,7 +57,7 @@ class S3Adapter extends FilesystemAdapter
      */
     public function initialize(array $config): bool
     {
-        $config = $this->reformatConfig($config);
+        $config = $this->reformatCredentials($config);
 
         return parent::initialize($config);
     }

@@ -48,7 +48,7 @@ class SnsTransport extends AbstractTransport
      */
     public function __construct($config = [])
     {
-        $config = $this->reformatConfig($config);
+        $config = $this->reformatCredentials($config);
 
         parent::__construct($config);
     }
