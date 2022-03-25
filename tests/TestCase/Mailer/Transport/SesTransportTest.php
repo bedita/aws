@@ -73,7 +73,7 @@ class SesTransportTest extends TestCase
         static::assertNull($credentials->getSecurityToken());
 
         $anotherClient = $sesTransport->getClient();
-        static::assertSame($client, $anotherClient, 'SNS client is not preserved');
+        static::assertSame($client, $anotherClient, 'SES client is not preserved');
     }
 
     /**
