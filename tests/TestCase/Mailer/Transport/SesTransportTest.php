@@ -20,7 +20,6 @@ use BEdita\AWS\Mailer\Transport\SesTransport;
 use Cake\I18n\FrozenTime;
 use Cake\Mailer\Email;
 use Cake\Utility\Text;
-use GuzzleHttp\Psr7\Request;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -31,7 +30,7 @@ use PHPUnit\Framework\TestCase;
 class SesTransportTest extends TestCase
 {
     /**
-     * Test {@see SesTransport::__construct()} and {@see SesTransport::getClient()} methods.
+     * Test {@see SesTransport} constructor and {@see SesTransport::getClient()} methods.
      *
      * @return void
      *
@@ -129,12 +128,11 @@ class SesTransportTest extends TestCase
     public function testSend(string $expectedHeaders, string $expectedMessage, array $config, Email $email, string $content): void
     {
         $invocations = 0;
-        $handler = function (Command $command, Request $request) use (&$invocations, $expectedHeaders, $expectedMessage): Result {
+        $handler = function (Command $command) use (&$invocations, $expectedHeaders, $expectedMessage): Result {
             $invocations++;
-            parse_str((string)$request->getBody(), $payload);
-            static::assertSame('SendRawEmail', $payload['Action']);
+            static::assertSame('SendRawEmail', $command->getName());
             $expected = $expectedHeaders . "\r\n\r\n" . $expectedMessage;
-            static::assertSame($expected, base64_decode($payload['RawMessage_Data']));
+            static::assertSame($expected, $command['RawMessage']['Data']);
 
             return new Result([]);
         };

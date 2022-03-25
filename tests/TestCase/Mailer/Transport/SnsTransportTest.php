@@ -18,7 +18,6 @@ use Aws\Result;
 use Aws\Sns\SnsClient;
 use BEdita\AWS\Mailer\Transport\SnsTransport;
 use Cake\Mailer\Email;
-use GuzzleHttp\Psr7\Request;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -29,7 +28,7 @@ use PHPUnit\Framework\TestCase;
 class SnsTransportTest extends TestCase
 {
     /**
-     * Test {@see SnsTransport::__construct()} and {@see SnsTransport::getClient()} methods.
+     * Test {@see SnsTransport} constructor and {@see SnsTransport::getClient()} methods.
      *
      * @return void
      *
@@ -88,6 +87,7 @@ class SnsTransportTest extends TestCase
                 [
                     'Message' => 'Hello, world!',
                     'PhoneNumber' => '+1-202-555-0118',
+                    'MessageAttributes' => [],
                 ],
                 [],
                 (new Email())->setEmailPattern('/.*/')->setFrom(['' => '_'])->setTo(['+1-202-555-0118']),
@@ -98,9 +98,9 @@ class SnsTransportTest extends TestCase
                 [
                     'Message' => 'Hello, world!',
                     'PhoneNumber' => '+1-202-555-0118',
-                    'MessageAttributes_entry_1_Name' => 'AWS.SNS.SMS.SenderID',
-                    'MessageAttributes_entry_1_Value_DataType' => 'String',
-                    'MessageAttributes_entry_1_Value_StringValue' => 'FooBar',
+                    'MessageAttributes' => [
+                        'AWS.SNS.SMS.SenderID' => ['DataType' => 'String', 'StringValue' => 'FooBar'],
+                    ],
                 ],
                 [],
                 (new Email())->setEmailPattern('/.*/')->setFrom(['' => 'FooBar'])->setTo(['+1-202-555-0118']),
@@ -111,9 +111,9 @@ class SnsTransportTest extends TestCase
                 [
                     'Message' => 'Hello, world!',
                     'PhoneNumber' => '+1-202-555-0118',
-                    'MessageAttributes_entry_1_Name' => 'AWS.SNS.SMS.SMSType',
-                    'MessageAttributes_entry_1_Value_DataType' => 'String',
-                    'MessageAttributes_entry_1_Value_StringValue' => 'Promotional',
+                    'MessageAttributes' => [
+                        'AWS.SNS.SMS.SMSType' => ['DataType' => 'String', 'StringValue' => 'Promotional'],
+                    ],
                 ],
                 ['smsType' => 'Promotional'],
                 (new Email())->setEmailPattern('/.*/')->setFrom(['' => '_'])->setTo(['+1-202-555-0118']),
@@ -124,12 +124,10 @@ class SnsTransportTest extends TestCase
                 [
                     'Message' => 'Hello, world!',
                     'PhoneNumber' => '+1-202-555-0118',
-                    'MessageAttributes_entry_1_Name' => 'AWS.SNS.SMS.SenderID',
-                    'MessageAttributes_entry_1_Value_DataType' => 'String',
-                    'MessageAttributes_entry_1_Value_StringValue' => 'FooBar',
-                    'MessageAttributes_entry_2_Name' => 'AWS.SNS.SMS.SMSType',
-                    'MessageAttributes_entry_2_Value_DataType' => 'String',
-                    'MessageAttributes_entry_2_Value_StringValue' => 'Transactional',
+                    'MessageAttributes' => [
+                        'AWS.SNS.SMS.SenderID' => ['DataType' => 'String', 'StringValue' => 'FooBar'],
+                        'AWS.SNS.SMS.SMSType' => ['DataType' => 'String', 'StringValue' => 'Transactional'],
+                    ],
                 ],
                 ['smsType' => 'Transactional'],
                 (new Email())->setEmailPattern('/.*/')->setFrom(['' => 'FooBar'])->setTo(['+1-202-555-0118']),
@@ -154,11 +152,11 @@ class SnsTransportTest extends TestCase
     public function testSend(array $expected, array $expectedPayload, array $config, Email $email, string $content): void
     {
         $invocations = 0;
-        $handler = function (Command $command, Request $request) use (&$invocations, $expectedPayload): Result {
+        $handler = function (Command $command) use (&$invocations, $expectedPayload): Result {
             $invocations++;
-            parse_str((string)$request->getBody(), $payload);
-            static::assertSame('Publish', $payload['Action']);
-            unset($payload['Action'], $payload['Version']);
+            static::assertSame('Publish', $command->getName());
+            $payload = iterator_to_array($command);
+            unset($payload['@context'], $payload['@http']);
             static::assertEquals($expectedPayload, $payload);
 
             return new Result([]);
