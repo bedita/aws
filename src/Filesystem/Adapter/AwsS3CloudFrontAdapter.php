@@ -16,6 +16,7 @@ namespace BEdita\AWS\Filesystem\Adapter;
 use Aws\CloudFront\CloudFrontClient;
 use Aws\CloudFront\Exception\CloudFrontException;
 use Aws\S3\S3ClientInterface;
+use DomainException;
 use League\Flysystem\AwsS3v3\AwsS3Adapter;
 use League\Flysystem\Config;
 
@@ -45,7 +46,40 @@ class AwsS3CloudFrontAdapter extends AwsS3Adapter
     {
         parent::__construct($client, $bucket, $prefix, $options, $streamReads);
 
+        if (!empty($options['distributionId']) && $cloudfrontClient === null) {
+            throw new DomainException('When `distributionId` is set, a CloudFront client instance is required');
+        }
         $this->cloudfrontClient = $cloudfrontClient;
+    }
+
+    /**
+     * Get CloudFront client instance.
+     *
+     * @return \Aws\CloudFront\CloudFrontClient|null
+     */
+    public function getCloudFrontClient(): ?CloudFrontClient
+    {
+        return $this->cloudfrontClient;
+    }
+
+    /**
+     * Get CloudFront distribution ID.
+     *
+     * @return string|null
+     */
+    public function getDistributionId(): ?string
+    {
+        return $this->options['distributionId'] ?? null;
+    }
+
+    /**
+     * Check whether CloudFront configuration is set.
+     *
+     * @return bool
+     */
+    public function hasCloudFrontConfig(): bool
+    {
+        return !empty($this->options['distributionId']) && $this->cloudfrontClient !== null;
     }
 
     /**
@@ -53,7 +87,7 @@ class AwsS3CloudFrontAdapter extends AwsS3Adapter
      */
     public function copy($path, $newpath)
     {
-        $existed = $this->has($newpath);
+        $existed = $this->hasCloudFrontConfig() && $this->has($newpath);
         $result = parent::copy($path, $newpath);
         if ($result !== false && $existed) {
             $this->createCloudFrontInvalidation($newpath);
@@ -67,7 +101,7 @@ class AwsS3CloudFrontAdapter extends AwsS3Adapter
      */
     public function delete($path)
     {
-        $existed = $this->has($path);
+        $existed = $this->hasCloudFrontConfig() && $this->has($path);
         $result = parent::delete($path);
         if ($result !== false && $existed) {
             $this->createCloudFrontInvalidation($path);
@@ -92,9 +126,9 @@ class AwsS3CloudFrontAdapter extends AwsS3Adapter
     /**
      * {@inheritDoc}
      */
-    public function upload($path, $body, Config $config)
+    protected function upload($path, $body, Config $config)
     {
-        $existed = $this->has($path);
+        $existed = $this->hasCloudFrontConfig() && $this->has($path);
         $result = parent::upload($path, $body, $config);
         if ($result !== false && $existed) {
             $this->createCloudFrontInvalidation($path);
