@@ -88,6 +88,7 @@ Log::setConfig([
 Cache::drop('_bedita_object_types_');
 Cache::drop('_bedita_core_');
 Cache::setConfig([
+    'default' => ['engine' => NullEngine::class],
     '_cake_core_' => ['engine' => ArrayEngine::class],
     '_cake_model_' => ['engine' => ArrayEngine::class],
     '_bedita_object_types_' => ['className' => NullEngine::class],
