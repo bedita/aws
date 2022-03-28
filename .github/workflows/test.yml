@@ -44,10 +44,7 @@ jobs:
         run: 'composer install --prefer-dist --no-interaction'
 
       - name: 'Run PHP CodeSniffer'
-        run: |
-          vendor/bin/phpcs -n -p --extensions=php \
-            --standard=vendor/cakephp/cakephp-codesniffer/CakePHP --ignore=/Migrations/,/Seeds/ \
-            ./src ./tests
+        run: 'vendor/bin/phpcs -n'
 
   stan:
     name: 'Static code analyzer'
