@@ -31,15 +31,6 @@ use Cake\ORM\TableRegistry;
 use Cake\Routing\Router;
 use Cake\Utility\Security;
 
-// Tokens introduced in PHP 7.4
-class PHP_Token_COALESCE_EQUAL extends PHP_Token
-{
-}
-
-class PHP_Token_FN extends PHP_Token
-{
-}
-
 $findRoot = function ($root) {
     do {
         $lastRoot = $root;
