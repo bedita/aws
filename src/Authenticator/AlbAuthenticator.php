@@ -24,13 +24,12 @@ use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
 use Lcobucci\Clock\FrozenClock;
-use Lcobucci\JWT\Encoding\JoseEncoder;
+use Lcobucci\JWT\Parser;
+use Lcobucci\JWT\Parsing\Decoder;
 use Lcobucci\JWT\Signer\Ecdsa\Sha256;
 use Lcobucci\JWT\Signer\Key;
-use Lcobucci\JWT\Token\Parser;
-use Lcobucci\JWT\UnencryptedToken;
 use Lcobucci\JWT\Validation\Constraint\SignedWith;
-use Lcobucci\JWT\Validation\Constraint\StrictValidAt;
+use Lcobucci\JWT\Validation\Constraint\ValidAt;
 use Lcobucci\JWT\Validation\Validator;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -185,11 +184,8 @@ class AlbAuthenticator extends TokenAuthenticator
      */
     protected function decodeToken(string $token): ?array
     {
-        $parser = new Parser(new JoseEncoder());
+        $parser = new Parser(new Decoder());
         $jwt = $parser->parse($token);
-        if (!($jwt instanceof UnencryptedToken)) {
-            return null;
-        }
 
         $kid = $jwt->headers()->get('kid');
         if (empty($kid) || !is_string($kid)) {
@@ -198,8 +194,8 @@ class AlbAuthenticator extends TokenAuthenticator
 
         (new Validator())->assert(
             $jwt,
-            new SignedWith(Sha256::create(), $this->getKey($kid)),
-            new StrictValidAt(new FrozenClock(FrozenTime::now()))
+            new SignedWith(new Sha256(), $this->getKey($kid)),
+            new ValidAt(new FrozenClock(FrozenTime::now()))
         );
 
         return $jwt->claims()->all();
