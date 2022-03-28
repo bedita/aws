@@ -28,7 +28,7 @@ class SnsTransport extends AbstractTransport
     use AwsConfigTrait;
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     protected $_defaultConfig = [
         'region' => null,
@@ -44,7 +44,7 @@ class SnsTransport extends AbstractTransport
     protected $client;
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function __construct($config = [])
     {

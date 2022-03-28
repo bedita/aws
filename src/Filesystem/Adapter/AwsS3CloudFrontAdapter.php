@@ -83,7 +83,7 @@ class AwsS3CloudFrontAdapter extends AwsS3Adapter
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function copy($path, $newpath)
     {
@@ -97,7 +97,7 @@ class AwsS3CloudFrontAdapter extends AwsS3Adapter
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function delete($path)
     {
@@ -111,7 +111,7 @@ class AwsS3CloudFrontAdapter extends AwsS3Adapter
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function deleteDir($dirname)
     {
@@ -124,7 +124,7 @@ class AwsS3CloudFrontAdapter extends AwsS3Adapter
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     protected function upload($path, $body, Config $config)
     {

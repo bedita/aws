@@ -34,7 +34,7 @@ class PluginTest extends TestCase
     protected $plugin;
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     protected function setUp(): void
     {
@@ -53,9 +53,6 @@ class PluginTest extends TestCase
     public function testBootstrap(): void
     {
         $app = new class (CONFIG) extends BaseApplication {
-            /**
-             * {@inheritDoc}
-             */
             public function middleware($middleware)
             {
                 return $middleware;

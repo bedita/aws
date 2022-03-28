@@ -35,7 +35,7 @@ class SesTransport extends AbstractTransport
     protected const EOL = "\r\n";
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     protected $_defaultConfig = [
         'region' => null,
@@ -50,7 +50,7 @@ class SesTransport extends AbstractTransport
     protected $client;
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function __construct($config = [])
     {
@@ -74,7 +74,7 @@ class SesTransport extends AbstractTransport
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function send(Email $email): array
     {

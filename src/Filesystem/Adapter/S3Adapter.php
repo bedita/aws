@@ -30,7 +30,7 @@ class S3Adapter extends FilesystemAdapter
     use AwsConfigTrait;
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     protected $_defaultConfig = [
         'region' => null,
@@ -55,7 +55,7 @@ class S3Adapter extends FilesystemAdapter
     protected $cloudFrontClient;
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function initialize(array $config): bool
     {
@@ -118,7 +118,7 @@ class S3Adapter extends FilesystemAdapter
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     protected function buildAdapter(array $config): AdapterInterface
     {
@@ -143,7 +143,7 @@ class S3Adapter extends FilesystemAdapter
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function getPublicUrl($path): string
     {
