@@ -21,18 +21,18 @@ namespace BEdita\AWS;
 trait AwsConfigTrait
 {
     /**
-     * Reformat configuration preparing it for
+     * Reformat configuration.
      *
      * @param array $config Configuration.
      * @return array
      */
-    protected function reformatConfig(array $config): array
+    protected function reformatCredentials(array $config): array
     {
-        if (!empty($config['username']) && !empty($config['password'])) {
-            $config['credentials'] = [
-                'key' => $config['username'],
-                'secret' => $config['password'],
-            ];
+        if (!empty($config['username'])) {
+            $config['credentials']['key'] = $config['credentials']['key'] ?? $config['username'];
+        }
+        if (!empty($config['password'])) {
+            $config['credentials']['secret'] = $config['credentials']['secret'] ?? $config['password'];
         }
 
         return $config;

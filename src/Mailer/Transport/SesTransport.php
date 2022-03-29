@@ -28,7 +28,14 @@ class SesTransport extends AbstractTransport
     use AwsConfigTrait;
 
     /**
-     * {@inheritDoc}
+     * End-of-line.
+     *
+     * @var string
+     */
+    protected const EOL = "\r\n";
+
+    /**
+     * @inheritDoc
      */
     protected $_defaultConfig = [
         'region' => null,
@@ -38,18 +45,18 @@ class SesTransport extends AbstractTransport
     /**
      * AWS SES instance.
      *
-     * @var \Aws\Ses\SesClient
+     * @var \Aws\Ses\SesClient|null
      */
     protected $client;
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function __construct($config = [])
     {
-        $config = $this->reformatConfig($config);
+        $config = $this->reformatCredentials($config);
 
-        return parent::__construct($config);
+        parent::__construct($config);
     }
 
     /**
@@ -63,25 +70,25 @@ class SesTransport extends AbstractTransport
             return $this->client;
         }
 
-        return $this->client = new SesClient($this->getConfig());
+        return $this->client = new SesClient((array)$this->getConfig());
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function send(Email $email): array
     {
         $headers = $email->getHeaders(['from', 'sender', 'replyTo', 'readReceipt', 'returnPath', 'to', 'cc', 'bcc', 'subject']);
         foreach ($headers as $key => $header) {
-            $headers[$key] = str_replace(["\r", "\n"], '', $header);
+            $headers[$key] = str_replace(str_split(static::EOL), '', $header);
         }
-        $headers = $this->_headersToString($headers, PHP_EOL);
+        $headers = $this->_headersToString($headers, static::EOL);
 
-        $message = implode(PHP_EOL, $email->message());
+        $message = implode(static::EOL, (array)$email->message());
 
         $this->getClient()->sendRawEmail([
             'RawMessage' => [
-                'Data' => $headers . PHP_EOL . PHP_EOL . $message,
+                'Data' => $headers . static::EOL . static::EOL . $message,
             ],
         ]);
 

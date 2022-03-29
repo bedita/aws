@@ -11,7 +11,10 @@
         "bedita/core": "*"
     },
     "require-dev": {
-        "phpunit/phpunit": "*"
+        "cakephp/cakephp-codesniffer": "^3.0",
+        "cakephp/plugin-installer": "^1.0",
+        "phpunit/phpunit": "^5.7.14|^6.0",
+        "phpstan/phpstan": "^1.5"
     },
     "autoload": {
         "psr-4": {
@@ -20,8 +23,18 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "BEdita\\AWS\\Test\\": "tests",
-            "Cake\\Test\\": "./vendor/cakephp/cakephp/tests"
+            "BEdita\\AWS\\Test\\": "tests"
+        }
+    },
+    "scripts": {
+        "cs-check": "vendor/bin/phpcs",
+        "cs-fix": "vendor/bin/phpcbf",
+        "stan": "vendor/bin/phpstan analyse",
+        "test": "vendor/bin/phpunit --colors=always"
+    },
+    "config": {
+        "allow-plugins": {
+            "cakephp/plugin-installer": true
         }
     }
 }

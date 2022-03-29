@@ -28,28 +28,29 @@ class SnsTransport extends AbstractTransport
     use AwsConfigTrait;
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     protected $_defaultConfig = [
         'region' => null,
         'version' => 'latest',
+        'smsType' => null,
     ];
 
     /**
      * AWS SES instance.
      *
-     * @var \Aws\Sns\SnsClient
+     * @var \Aws\Sns\SnsClient|null
      */
     protected $client;
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function __construct($config = [])
     {
-        $config = $this->reformatConfig($config);
+        $config = $this->reformatCredentials($config);
 
-        return parent::__construct($config);
+        parent::__construct($config);
     }
 
     /**
@@ -63,7 +64,7 @@ class SnsTransport extends AbstractTransport
             return $this->client;
         }
 
-        return $this->client = new SnsClient($this->getConfig());
+        return $this->client = new SnsClient((array)$this->getConfig());
     }
 
     /**
@@ -79,7 +80,9 @@ class SnsTransport extends AbstractTransport
 
         $phoneNumber = reset($to);
         $senderId = trim(reset($from));
-        $message = trim($email->message(Email::MESSAGE_TEXT));
+        /** @var string $message */
+        $message = $email->message(Email::MESSAGE_TEXT);
+        $message = trim($message);
         $smsType = $this->getConfig('smsType');
 
         $attributes = [];
