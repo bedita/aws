@@ -105,7 +105,7 @@ ConnectionManager::alias('test', 'default');
 
 Router::reload();
 Security::setSalt('BEDITA');
-FrozenTime::setTestNow('2022-01-01T00:00:00+01:00');
+FrozenTime::setTestNow(new FrozenTime('2022-01-01T00:00:00+01:00'));
 
 // clear all before running tests
 TableRegistry::getTableLocator()->clear();
