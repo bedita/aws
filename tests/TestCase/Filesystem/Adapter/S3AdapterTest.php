@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * BEdita, API-first content management framework
  * Copyright 2022 Atlas Srl, Chialab Srl
@@ -172,7 +174,6 @@ class S3AdapterTest extends TestCase
      * @param array|\Exception $expected Expected outcome.
      * @param array $config Adapter configuration.
      * @return void
-     *
      * @dataProvider initializeProvider()
      * @covers ::initialize()
      * @covers ::reformatConfig()
@@ -195,7 +196,6 @@ class S3AdapterTest extends TestCase
      * Test {@see S3Adapter::getClient()} and {@see S3Adapter::getCloudFrontClient()} methods.
      *
      * @return void
-     *
      * @covers ::getClient()
      * @covers ::getCloudFrontClient()
      */
@@ -248,7 +248,6 @@ class S3AdapterTest extends TestCase
      * Test {@see S3Adapter::buildAdapter()} method.
      *
      * @return void
-     *
      * @covers ::buildAdapter()
      */
     public function testBuildAdapter(): void
@@ -278,7 +277,6 @@ class S3AdapterTest extends TestCase
      * Test {@see S3Adapter::buildAdapter()} method with a CloudFront distribution.
      *
      * @return void
-     *
      * @covers ::buildAdapter()
      */
     public function testBuildAdapterCloudFront(): void
@@ -308,7 +306,6 @@ class S3AdapterTest extends TestCase
      * Test {@see S3Adapter::getPublicUrl()} method.
      *
      * @return void
-     *
      * @covers ::getPublicUrl()
      */
     public function testGetPublicUrl(): void
@@ -336,7 +333,6 @@ class S3AdapterTest extends TestCase
      * Test {@see S3Adapter::getPublicUrl()} method falling back to default AWS S3 URL..
      *
      * @return void
-     *
      * @covers ::getPublicUrl()
      */
     public function testGetPublicUrlDefaultS3Url(): void

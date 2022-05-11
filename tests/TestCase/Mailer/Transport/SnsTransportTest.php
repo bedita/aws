@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * BEdita, API-first content management framework
  * Copyright 2022 Atlas Srl, Chialab Srl
@@ -31,7 +33,6 @@ class SnsTransportTest extends TestCase
      * Test {@see SnsTransport} constructor and {@see SnsTransport::getClient()} methods.
      *
      * @return void
-     *
      * @covers ::__construct()
      * @covers ::getClient()
      */
@@ -145,7 +146,6 @@ class SnsTransportTest extends TestCase
      * @param \Cake\Mailer\Email $email Email to send.
      * @param string $content Message contents.
      * @return void
-     *
      * @dataProvider sendProvider()
      * @covers ::send()
      */

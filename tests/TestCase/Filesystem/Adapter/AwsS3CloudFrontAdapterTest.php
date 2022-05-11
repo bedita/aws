@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * BEdita, API-first content management framework
  * Copyright 2022 Atlas Srl, Chialab Srl
@@ -77,7 +79,6 @@ class AwsS3CloudFrontAdapterTest extends TestCase
      * methods.
      *
      * @return void
-     *
      * @covers ::__construct()
      * @covers ::getCloudFrontClient()
      * @covers ::getDistributionId()
@@ -98,7 +99,6 @@ class AwsS3CloudFrontAdapterTest extends TestCase
      * Test {@see AwsS3CloudFrontAdapter} constructor when CloudFront client is missing.
      *
      * @return void
-     *
      * @covers ::__construct()
      */
     public function testConstructMissingCloudFrontClient(): void
@@ -115,7 +115,6 @@ class AwsS3CloudFrontAdapterTest extends TestCase
      * methods with a distribution ID.
      *
      * @return void
-     *
      * @covers ::__construct()
      * @covers ::getCloudFrontClient()
      * @covers ::getDistributionId()
@@ -138,7 +137,6 @@ class AwsS3CloudFrontAdapterTest extends TestCase
      * Test {@see AwsS3CloudFrontAdapter::copy()} method.
      *
      * @return void
-     *
      * @covers ::copy()
      */
     public function testCopy(): void
@@ -179,7 +177,6 @@ class AwsS3CloudFrontAdapterTest extends TestCase
      * Test {@see AwsS3CloudFrontAdapter::copy()} method with CloudFront config set to a new destination.
      *
      * @return void
-     *
      * @covers ::copy()
      */
     public function testCopyCloudFrontNotExistingObject(): void
@@ -237,7 +234,6 @@ class AwsS3CloudFrontAdapterTest extends TestCase
      * Test {@see AwsS3CloudFrontAdapter::copy()} method with CloudFront config set to an existing destination.
      *
      * @return void
-     *
      * @covers ::copy()
      * @covers ::applyCloudFrontPathPrefix()
      * @covers ::createCloudFrontInvalidation()
@@ -300,7 +296,6 @@ class AwsS3CloudFrontAdapterTest extends TestCase
      * Test {@see AwsS3CloudFrontAdapter::delete()} method.
      *
      * @return void
-     *
      * @covers ::delete()
      */
     public function testDelete(): void
@@ -341,7 +336,6 @@ class AwsS3CloudFrontAdapterTest extends TestCase
      * Test {@see AwsS3CloudFrontAdapter::delete()} method with CloudFront config set to a new destination.
      *
      * @return void
-     *
      * @covers ::delete()
      */
     public function testDeleteCloudFrontNotExistingObject(): void
@@ -388,7 +382,6 @@ class AwsS3CloudFrontAdapterTest extends TestCase
      * Test {@see AwsS3CloudFrontAdapter::delete()} method with CloudFront config set to an existing destination.
      *
      * @return void
-     *
      * @covers ::delete()
      * @covers ::applyCloudFrontPathPrefix()
      * @covers ::createCloudFrontInvalidation()
@@ -454,7 +447,6 @@ class AwsS3CloudFrontAdapterTest extends TestCase
      * Test {@see AwsS3CloudFrontAdapter::deleteDir()} method.
      *
      * @return void
-     *
      * @covers ::deleteDir()
      */
     public function testDeleteDir(): void
@@ -489,7 +481,6 @@ class AwsS3CloudFrontAdapterTest extends TestCase
      * Test {@see AwsS3CloudFrontAdapter::deleteDir()} method with CloudFront config set.
      *
      * @return void
-     *
      * @covers ::deleteDir()
      * @covers ::applyCloudFrontPathPrefix()
      * @covers ::createCloudFrontInvalidation()
@@ -541,7 +532,6 @@ class AwsS3CloudFrontAdapterTest extends TestCase
      * Test {@see AwsS3CloudFrontAdapter::upload()} method.
      *
      * @return void
-     *
      * @covers ::upload()
      */
     public function testUpload(): void
@@ -571,7 +561,6 @@ class AwsS3CloudFrontAdapterTest extends TestCase
      * Test {@see AwsS3CloudFrontAdapter::upload()} method with CloudFront config set to a new destination.
      *
      * @return void
-     *
      * @covers ::upload()
      */
     public function testUploadCloudFrontNotExistingObject(): void
@@ -619,7 +608,6 @@ class AwsS3CloudFrontAdapterTest extends TestCase
      * Test {@see AwsS3CloudFrontAdapter::upload()} method with CloudFront config set to an existing destination.
      *
      * @return void
-     *
      * @covers ::upload()
      * @covers ::applyCloudFrontPathPrefix()
      * @covers ::createCloudFrontInvalidation()
