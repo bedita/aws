@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * BEdita, API-first content management framework
  * Copyright 2022 Atlas Srl, Chialab Srl
@@ -18,7 +20,7 @@ use Aws\Result;
 use Aws\Ses\SesClient;
 use BEdita\AWS\Mailer\Transport\SesTransport;
 use Cake\I18n\FrozenTime;
-use Cake\Mailer\Email;
+use Cake\Mailer\Message;
 use Cake\Utility\Text;
 use PHPUnit\Framework\TestCase;
 
@@ -33,7 +35,6 @@ class SesTransportTest extends TestCase
      * Test {@see SesTransport} constructor and {@see SesTransport::getClient()} methods.
      *
      * @return void
-     *
      * @covers ::__construct()
      * @covers ::getClient()
      */
@@ -101,13 +102,13 @@ class SesTransportTest extends TestCase
                     '', '', // two trailing empty lines
                 ]),
                 [],
-                (new Email())
+                (new Message())
                     ->setMessageId($messageId)
                     ->setSubject('Test email')
                     ->setHeaders(['Date' => FrozenTime::getTestNow()->toRfc2822String()])
                     ->setFrom(['gustavo@example.com' => 'Gustavo'])
-                    ->setTo(['recipient@example.com']),
-                'Hello world!',
+                    ->setTo(['recipient@example.com'])
+                    ->setBodyText('Hello world!'),
             ],
         ];
     }
@@ -118,14 +119,12 @@ class SesTransportTest extends TestCase
      * @param string $expectedHeaders Expected headers.
      * @param string $expectedMessage Expected message.
      * @param array $config Client configuration.
-     * @param \Cake\Mailer\Email $email Email to send.
-     * @param string $content Message contents.
+     * @param \Cake\Mailer\Message $email Email message to send.
      * @return void
-     *
      * @dataProvider sendProvider()
      * @covers ::send()
      */
-    public function testSend(string $expectedHeaders, string $expectedMessage, array $config, Email $email, string $content): void
+    public function testSend(string $expectedHeaders, string $expectedMessage, array $config, Message $email): void
     {
         $invocations = 0;
         $handler = function (Command $command) use (&$invocations, $expectedHeaders, $expectedMessage): Result {
@@ -148,7 +147,7 @@ class SesTransportTest extends TestCase
         $transport = new SesTransport($config);
 
         $expected = ['headers' => $expectedHeaders, 'message' => $expectedMessage];
-        $actual = $email->setTransport($transport)->send($content);
+        $actual = $transport->send($email);
 
         static::assertSame($expected, $actual);
         static::assertSame(1, $invocations);

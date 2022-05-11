@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * BEdita, API-first content management framework
  * Copyright 2022 Atlas Srl, Chialab Srl
@@ -42,7 +44,7 @@ class AwsS3CloudFrontAdapter extends AwsS3Adapter
      * @param bool $streamReads Whether reads should be streamed.
      * @param \Aws\CloudFront\CloudFrontClient|null $cloudfrontClient CloudFront client instance, or `null`.
      */
-    public function __construct(S3ClientInterface $client, $bucket, $prefix = '', array $options = [], $streamReads = true, CloudFrontClient $cloudfrontClient = null)
+    public function __construct(S3ClientInterface $client, $bucket, $prefix = '', array $options = [], $streamReads = true, ?CloudFrontClient $cloudfrontClient = null)
     {
         parent::__construct($client, $bucket, $prefix, $options, $streamReads);
 

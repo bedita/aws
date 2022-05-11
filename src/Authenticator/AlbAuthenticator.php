@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * BEdita, API-first content management framework
  * Copyright 2022 Atlas Srl, Chialab Srl
@@ -31,7 +33,6 @@ use Lcobucci\JWT\Signer\Key;
 use Lcobucci\JWT\Validation\Constraint\SignedWith;
 use Lcobucci\JWT\Validation\Constraint\ValidAt;
 use Lcobucci\JWT\Validation\Validator;
-use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**
@@ -83,10 +84,9 @@ class AlbAuthenticator extends TokenAuthenticator
      *
      * @link https://jwt.io/
      * @param \Psr\Http\Message\ServerRequestInterface $request The request that contains login information.
-     * @param \Psr\Http\Message\ResponseInterface $response Unused response object.
      * @return \Authentication\Authenticator\ResultInterface
      */
-    public function authenticate(ServerRequestInterface $request, ResponseInterface $response): ResultInterface
+    public function authenticate(ServerRequestInterface $request): ResultInterface
     {
         $token = $this->getTokenFromHeader($request, $this->getConfigOrFail('header'));
         if ($token === null) {
