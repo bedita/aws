@@ -186,6 +186,7 @@ class AlbAuthenticator extends TokenAuthenticator
     protected function decodeToken(string $token): ?array
     {
         $parser = new TokenParser(new JoseEncoder());
+        /** @var \Lcobucci\JWT\UnencryptedToken $jwt */
         $jwt = $parser->parse($token);
 
         $kid = $jwt->headers()->get('kid');

@@ -84,13 +84,15 @@ class SesTransportTest extends TestCase
     public function sendProvider(): array
     {
         $messageId = sprintf('<%s@example.com>', Text::uuid());
+        /** @var \Cake\Chronos\ChronosInterface $now */
+        $now = FrozenTime::getTestNow();
 
         return [
             'simple' => [
                 join("\r\n", [
                     'From: Gustavo <gustavo@example.com>',
                     'To: recipient@example.com',
-                    sprintf('Date: %s', FrozenTime::getTestNow()->toRfc2822String()),
+                    sprintf('Date: %s', $now->toRfc2822String()),
                     sprintf('Message-ID: %s', $messageId),
                     'Subject: Test email',
                     'MIME-Version: 1.0',
@@ -105,7 +107,7 @@ class SesTransportTest extends TestCase
                 (new Message())
                     ->setMessageId($messageId)
                     ->setSubject('Test email')
-                    ->setHeaders(['Date' => FrozenTime::getTestNow()->toRfc2822String()])
+                    ->setHeaders(['Date' => $now->toRfc2822String()])
                     ->setFrom(['gustavo@example.com' => 'Gustavo'])
                     ->setTo(['recipient@example.com'])
                     ->setBodyText('Hello world!'),

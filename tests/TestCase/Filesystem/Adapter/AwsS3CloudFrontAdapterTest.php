@@ -553,7 +553,7 @@ class AwsS3CloudFrontAdapterTest extends TestCase
         });
         $adapter = new AwsS3CloudFrontAdapter($s3Client, 'example-bucket', 'foo/', [], true, null);
 
-        static::assertNotFalse($adapter->write('file.txt', 'data', new Config())); // @phpstan-ignore-line
+        static::assertNotFalse($adapter->write('file.txt', 'data', new Config()));
         static::assertSame(['PutObject'], $invocations);
     }
 
@@ -600,7 +600,7 @@ class AwsS3CloudFrontAdapterTest extends TestCase
         });
         $adapter = new AwsS3CloudFrontAdapter($s3Client, 'example-bucket', 'foo/', ['distributionId' => 'E2EXAMPLE', 'cloudFrontPathPrefix' => 'bar/'], true, $cloudFrontClient);
 
-        static::assertNotFalse($adapter->write('file.txt', 'data', new Config())); // @phpstan-ignore-line
+        static::assertNotFalse($adapter->write('file.txt', 'data', new Config()));
         static::assertSame(['HeadObject', 'ListObjects', 'PutObject'], $invocations);
     }
 
@@ -658,7 +658,7 @@ class AwsS3CloudFrontAdapterTest extends TestCase
         });
         $adapter = new AwsS3CloudFrontAdapter($s3Client, 'example-bucket', 'foo/', ['distributionId' => 'E2EXAMPLE', 'cloudFrontPathPrefix' => 'bar/'], true, $cloudFrontClient);
 
-        static::assertNotFalse($adapter->write('file.txt', 'data', new Config())); // @phpstan-ignore-line
+        static::assertNotFalse($adapter->write('file.txt', 'data', new Config()));
         static::assertSame(['HeadObject', 'PutObject', 'CreateInvalidation'], $invocations);
     }
 }
