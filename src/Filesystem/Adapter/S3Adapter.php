@@ -20,7 +20,7 @@ use Aws\S3\S3Client;
 use BEdita\AWS\AwsConfigTrait;
 use BEdita\Core\Filesystem\FilesystemAdapter;
 use InvalidArgumentException;
-use League\Flysystem\AdapterInterface;
+use League\Flysystem\FilesystemAdapter as FlysystemAdapter;
 
 /**
  * AWS S3 adapter.
@@ -122,7 +122,7 @@ class S3Adapter extends FilesystemAdapter
     /**
      * @inheritDoc
      */
-    protected function buildAdapter(array $config): AdapterInterface
+    protected function buildAdapter(array $config): FlysystemAdapter
     {
         $cloudFrontClient = null;
         $prefix = $this->getConfig('prefix');
