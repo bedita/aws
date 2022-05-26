@@ -5,18 +5,18 @@
     "require": {
         "php": "^7.4 || ^8.0",
         "ext-openssl": "*",
-        "aws/aws-sdk-php": "^3.0.0",
+        "aws/aws-sdk-php": "^3.222",
         "bedita/core": "dev-5-salix",
-        "cakephp/cakephp": "^4.3.8",
+        "cakephp/cakephp": "^4.3.9",
         "lcobucci/jwt": "^4.1.5",
-        "league/flysystem": "^1.1.9",
-        "league/flysystem-aws-s3-v3": "^1.0.29",
+        "league/flysystem": "^2.4.3",
+        "league/flysystem-aws-s3-v3": "^2.4.3",
         "guzzlehttp/guzzle": "^7.4"
     },
     "require-dev": {
         "cakephp/cakephp-codesniffer": "~4.5.1",
         "phpunit/phpunit": "^8.5",
-        "phpstan/phpstan": "^1.5",
+        "phpstan/phpstan": "^1.7.1",
         "cakephp/authentication": "^2.9"
     },
     "suggest": {
