@@ -6,7 +6,7 @@
         "php": "^7.4 || ^8.0",
         "ext-openssl": "*",
         "aws/aws-sdk-php": "^3.222",
-        "bedita/core": "dev-5-salix",
+        "bedita/core": "@dev",
         "cakephp/cakephp": "^4.3.9",
         "lcobucci/jwt": "^4.1.5",
         "league/flysystem": "^2.4.3",
@@ -15,7 +15,7 @@
     },
     "require-dev": {
         "cakephp/cakephp-codesniffer": "~4.5.1",
-        "phpunit/phpunit": "^8.5",
+        "phpunit/phpunit": "^9.5",
         "phpstan/phpstan": "^1.7.1",
         "cakephp/authentication": "^2.9"
     },
