@@ -61,7 +61,7 @@ class SnsTransportTest extends TestCase
                 'secret' => 'example',
             ],
         ];
-        static::assertAttributeSame($expected, '_config', $snsTransport);
+        static::assertSame($expected, $snsTransport->getConfig());
 
         $client = $snsTransport->getClient();
         static::assertSame('eu-south-1', $client->getRegion());

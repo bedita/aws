@@ -19,7 +19,7 @@ use Aws\CloudFront\CloudFrontClient;
 use Aws\CloudFront\Exception\CloudFrontException;
 use Aws\S3\S3ClientInterface;
 use DomainException;
-use League\Flysystem\AwsS3v3\AwsS3V3Adapter;
+use League\Flysystem\AwsS3V3\AwsS3V3Adapter;
 use League\Flysystem\Config;
 
 /**
@@ -46,7 +46,7 @@ class AwsS3CloudFrontAdapter extends AwsS3V3Adapter
      */
     public function __construct(S3ClientInterface $client, $bucket, $prefix = '', array $options = [], $streamReads = true, ?CloudFrontClient $cloudfrontClient = null)
     {
-        parent::__construct($client, $bucket, $prefix, $options, $streamReads);
+        parent::__construct($client, $bucket, $prefix, null, null, $options, $streamReads);
 
         if (!empty($options['distributionId']) && $cloudfrontClient === null) {
             throw new DomainException('When `distributionId` is set, a CloudFront client instance is required');

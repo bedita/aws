@@ -24,6 +24,7 @@ use BEdita\AWS\Authenticator\AlbAuthenticator;
 use Cake\Http\ServerRequest;
 use Cake\I18n\FrozenTime;
 use Cake\Utility\Text;
+use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
@@ -46,6 +47,8 @@ use PHPUnit\Framework\TestCase;
  */
 class AlbAuthenticatorTest extends TestCase
 {
+    use ArraySubsetAsserts;
+
     /**
      * Key ID.
      *

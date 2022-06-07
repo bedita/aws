@@ -24,7 +24,6 @@ use BEdita\AWS\Filesystem\Adapter\AwsS3CloudFrontAdapter;
 use DomainException;
 use GuzzleHttp\Psr7\Response;
 use InvalidArgumentException;
-use League\Flysystem\AwsS3v3\AwsS3Adapter;
 use League\Flysystem\Config;
 use PHPUnit\Framework\TestCase;
 
@@ -89,7 +88,6 @@ class AwsS3CloudFrontAdapterTest extends TestCase
         $s3Client = static::s3ClientFactory();
         $adapter = new AwsS3CloudFrontAdapter($s3Client, 'example-bucket', '', [], true, null);
 
-        static::assertSame($s3Client, $adapter->getClient());
         static::assertNull($adapter->getCloudFrontClient());
         static::assertNull($adapter->getDistributionId());
         static::assertFalse($adapter->hasCloudFrontConfig());
@@ -127,7 +125,6 @@ class AwsS3CloudFrontAdapterTest extends TestCase
         $distributionId = 'E2EXAMPLE';
         $adapter = new AwsS3CloudFrontAdapter($s3Client, 'example-bucket', '', compact('distributionId'), true, $cloudFrontClient);
 
-        static::assertSame($s3Client, $adapter->getClient());
         static::assertSame($cloudFrontClient, $adapter->getCloudFrontClient());
         static::assertSame($distributionId, $adapter->getDistributionId());
         static::assertTrue($adapter->hasCloudFrontConfig());
@@ -154,7 +151,7 @@ class AwsS3CloudFrontAdapterTest extends TestCase
 
                 case 'GetObjectAcl':
                     return new Result([
-                        'Grants' => [['Grantee' => ['URI' => AwsS3Adapter::PUBLIC_GRANT_URI], 'Permission' => 'READ']],
+                        'Grants' => [['Grantee' => ['URI' => ''], 'Permission' => 'READ']],
                     ]);
 
                 case 'CopyObject':
@@ -169,7 +166,7 @@ class AwsS3CloudFrontAdapterTest extends TestCase
         });
         $adapter = new AwsS3CloudFrontAdapter($s3Client, 'example-bucket', '', [], true, null);
 
-        static::assertTrue($adapter->copy('old.jpg', 'new.jpg'));
+        static::assertTrue($adapter->copy('old.jpg', 'new.jpg', new Config()));
         static::assertSame(['GetObjectAcl', 'HeadObject', 'CopyObject'], $invocations);
     }
 
@@ -205,7 +202,7 @@ class AwsS3CloudFrontAdapterTest extends TestCase
 
                 case 'GetObjectAcl':
                     return new Result([
-                        'Grants' => [['Grantee' => ['URI' => AwsS3Adapter::PUBLIC_GRANT_URI], 'Permission' => 'READ']],
+                        'Grants' => [['Grantee' => ['URI' => ''], 'Permission' => 'READ']],
                     ]);
 
                 case 'CopyObject':
@@ -226,7 +223,7 @@ class AwsS3CloudFrontAdapterTest extends TestCase
         });
         $adapter = new AwsS3CloudFrontAdapter($s3Client, 'example-bucket', '', ['distributionId' => 'E2EXAMPLE'], true, $cloudFrontClient);
 
-        static::assertTrue($adapter->copy('old.jpg', 'new.jpg'));
+        static::assertTrue($adapter->copy('old.jpg', 'new.jpg', new Config()));
         static::assertSame(['HeadObject', 'ListObjects', 'GetObjectAcl', 'HeadObject', 'CopyObject'], $invocations);
     }
 
@@ -258,7 +255,7 @@ class AwsS3CloudFrontAdapterTest extends TestCase
 
                 case 'GetObjectAcl':
                     return new Result([
-                        'Grants' => [['Grantee' => ['URI' => AwsS3Adapter::PUBLIC_GRANT_URI], 'Permission' => 'READ']],
+                        'Grants' => [['Grantee' => ['URI' => ''], 'Permission' => 'READ']],
                     ]);
 
                 case 'CopyObject':
@@ -288,7 +285,7 @@ class AwsS3CloudFrontAdapterTest extends TestCase
         });
         $adapter = new AwsS3CloudFrontAdapter($s3Client, 'example-bucket', '', ['distributionId' => 'E2EXAMPLE'], true, $cloudFrontClient);
 
-        static::assertTrue($adapter->copy('old.jpg', 'new.jpg'));
+        static::assertTrue($adapter->copy('old.jpg', 'new.jpg', new Config()));
         static::assertSame(['HeadObject', 'GetObjectAcl', 'HeadObject', 'CopyObject', 'CreateInvalidation'], $invocations);
     }
 
@@ -473,7 +470,7 @@ class AwsS3CloudFrontAdapterTest extends TestCase
         });
         $adapter = new AwsS3CloudFrontAdapter($s3Client, 'example-bucket', 'foo/', [], true, null);
 
-        static::assertTrue($adapter->deleteDir('my/sub/path'));
+        static::assertTrue($adapter->deleteDirectory('my/sub/path'));
         static::assertSame(['ListObjects', 'DeleteObjects'], $invocations);
     }
 
@@ -524,7 +521,7 @@ class AwsS3CloudFrontAdapterTest extends TestCase
         });
         $adapter = new AwsS3CloudFrontAdapter($s3Client, 'example-bucket', 'foo/', ['distributionId' => 'E2EXAMPLE', 'cloudFrontPathPrefix' => 'bar/'], true, $cloudFrontClient);
 
-        static::assertTrue($adapter->deleteDir('my/sub/path'));
+        static::assertTrue($adapter->deleteDirectory('my/sub/path'));
         static::assertSame(['ListObjects', 'DeleteObjects', 'CreateInvalidation'], $invocations);
     }
 

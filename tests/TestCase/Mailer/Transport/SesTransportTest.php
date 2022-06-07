@@ -62,7 +62,7 @@ class SesTransportTest extends TestCase
                 'secret' => 'example',
             ],
         ];
-        static::assertAttributeSame($expected, '_config', $sesTransport);
+        static::assertSame($expected, $sesTransport->getConfig());
 
         $client = $sesTransport->getClient();
         static::assertSame('eu-south-1', $client->getRegion());
