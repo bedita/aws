@@ -166,7 +166,7 @@ class AwsS3CloudFrontAdapterTest extends TestCase
         });
         $adapter = new AwsS3CloudFrontAdapter($s3Client, 'example-bucket', '', [], true, null);
 
-        static::assertTrue($adapter->copy('old.jpg', 'new.jpg', new Config()));
+        $adapter->copy('old.jpg', 'new.jpg', new Config());
         static::assertSame(['GetObjectAcl', 'HeadObject', 'CopyObject'], $invocations);
     }
 
@@ -223,7 +223,7 @@ class AwsS3CloudFrontAdapterTest extends TestCase
         });
         $adapter = new AwsS3CloudFrontAdapter($s3Client, 'example-bucket', '', ['distributionId' => 'E2EXAMPLE'], true, $cloudFrontClient);
 
-        static::assertTrue($adapter->copy('old.jpg', 'new.jpg', new Config()));
+        $adapter->copy('old.jpg', 'new.jpg', new Config());
         static::assertSame(['HeadObject', 'ListObjects', 'GetObjectAcl', 'HeadObject', 'CopyObject'], $invocations);
     }
 
@@ -285,7 +285,7 @@ class AwsS3CloudFrontAdapterTest extends TestCase
         });
         $adapter = new AwsS3CloudFrontAdapter($s3Client, 'example-bucket', '', ['distributionId' => 'E2EXAMPLE'], true, $cloudFrontClient);
 
-        static::assertTrue($adapter->copy('old.jpg', 'new.jpg', new Config()));
+        $adapter->copy('old.jpg', 'new.jpg', new Config());
         static::assertSame(['HeadObject', 'GetObjectAcl', 'HeadObject', 'CopyObject', 'CreateInvalidation'], $invocations);
     }
 
@@ -325,7 +325,7 @@ class AwsS3CloudFrontAdapterTest extends TestCase
         });
         $adapter = new AwsS3CloudFrontAdapter($s3Client, 'example-bucket', 'foo/', [], true, null);
 
-        static::assertTrue($adapter->delete('file.txt'));
+        $adapter->delete('file.txt');
         static::assertSame(['DeleteObject', 'HeadObject', 'ListObjects'], $invocations);
     }
 
@@ -371,7 +371,7 @@ class AwsS3CloudFrontAdapterTest extends TestCase
         });
         $adapter = new AwsS3CloudFrontAdapter($s3Client, 'example-bucket', 'foo/', ['distributionId' => 'E2EXAMPLE', 'cloudFrontPathPrefix' => 'bar/'], true, $cloudFrontClient);
 
-        static::assertTrue($adapter->delete('file.txt'));
+        $adapter->delete('file.txt');
         static::assertSame(['HeadObject', 'ListObjects', 'DeleteObject', 'HeadObject', 'ListObjects'], $invocations);
     }
 
@@ -436,7 +436,7 @@ class AwsS3CloudFrontAdapterTest extends TestCase
         });
         $adapter = new AwsS3CloudFrontAdapter($s3Client, 'example-bucket', 'foo/', ['distributionId' => 'E2EXAMPLE', 'cloudFrontPathPrefix' => 'bar/'], true, $cloudFrontClient);
 
-        static::assertTrue($adapter->delete('file.txt'));
+        $adapter->delete('file.txt');
         static::assertSame(['HeadObject', 'DeleteObject', 'HeadObject', 'ListObjects', 'CreateInvalidation'], $invocations);
     }
 
@@ -470,7 +470,7 @@ class AwsS3CloudFrontAdapterTest extends TestCase
         });
         $adapter = new AwsS3CloudFrontAdapter($s3Client, 'example-bucket', 'foo/', [], true, null);
 
-        static::assertTrue($adapter->deleteDirectory('my/sub/path'));
+        $adapter->deleteDirectory('my/sub/path');
         static::assertSame(['ListObjects', 'DeleteObjects'], $invocations);
     }
 
@@ -521,7 +521,7 @@ class AwsS3CloudFrontAdapterTest extends TestCase
         });
         $adapter = new AwsS3CloudFrontAdapter($s3Client, 'example-bucket', 'foo/', ['distributionId' => 'E2EXAMPLE', 'cloudFrontPathPrefix' => 'bar/'], true, $cloudFrontClient);
 
-        static::assertTrue($adapter->deleteDirectory('my/sub/path'));
+        $adapter->deleteDirectory('my/sub/path');
         static::assertSame(['ListObjects', 'DeleteObjects', 'CreateInvalidation'], $invocations);
     }
 
@@ -550,7 +550,7 @@ class AwsS3CloudFrontAdapterTest extends TestCase
         });
         $adapter = new AwsS3CloudFrontAdapter($s3Client, 'example-bucket', 'foo/', [], true, null);
 
-        static::assertNotFalse($adapter->write('file.txt', 'data', new Config()));
+        $adapter->write('file.txt', 'data', new Config());
         static::assertSame(['PutObject'], $invocations);
     }
 
@@ -597,7 +597,7 @@ class AwsS3CloudFrontAdapterTest extends TestCase
         });
         $adapter = new AwsS3CloudFrontAdapter($s3Client, 'example-bucket', 'foo/', ['distributionId' => 'E2EXAMPLE', 'cloudFrontPathPrefix' => 'bar/'], true, $cloudFrontClient);
 
-        static::assertNotFalse($adapter->write('file.txt', 'data', new Config()));
+        $adapter->write('file.txt', 'data', new Config());
         static::assertSame(['HeadObject', 'ListObjects', 'PutObject'], $invocations);
     }
 
@@ -655,7 +655,7 @@ class AwsS3CloudFrontAdapterTest extends TestCase
         });
         $adapter = new AwsS3CloudFrontAdapter($s3Client, 'example-bucket', 'foo/', ['distributionId' => 'E2EXAMPLE', 'cloudFrontPathPrefix' => 'bar/'], true, $cloudFrontClient);
 
-        static::assertNotFalse($adapter->write('file.txt', 'data', new Config()));
+        $adapter->write('file.txt', 'data', new Config());
         static::assertSame(['HeadObject', 'PutObject', 'CreateInvalidation'], $invocations);
     }
 }

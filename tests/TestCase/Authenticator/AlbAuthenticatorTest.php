@@ -417,7 +417,7 @@ class AlbAuthenticatorTest extends TestCase
             ->expiresAt(FrozenTime::now()->addMinute())
             ->withHeader('kid', $this->keyId)
             ->relatedTo('gustavo@example.com')
-            ->getToken(new None(), InMemory::plainText(''))
+            ->getToken(new None(), InMemory::plainText('key'))
             ->toString();
 
         $result = $authenticator->authenticate(
