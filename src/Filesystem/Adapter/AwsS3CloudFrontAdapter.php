@@ -69,10 +69,10 @@ class AwsS3CloudFrontAdapter extends AwsS3V3Adapter
      *
      * @return string|null
      */
-    public function getDistributionId(): ?string
-    {
-        return $this->options['distributionId'] ?? null;
-    }
+    // public function getDistributionId(): ?string
+    // {
+    //     return $this->options['distributionId'] ?? null;
+    // }
 
     /**
      * Check whether CloudFront configuration is set.
@@ -81,7 +81,7 @@ class AwsS3CloudFrontAdapter extends AwsS3V3Adapter
      */
     public function hasCloudFrontConfig(): bool
     {
-        return !empty($this->options['distributionId']) && $this->cloudfrontClient !== null;
+        return $this->cloudfrontClient !== null;
     }
 
     /**
