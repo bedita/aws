@@ -441,10 +441,10 @@ class AwsS3CloudFrontAdapterTest extends TestCase
     }
 
     /**
-     * Test {@see AwsS3CloudFrontAdapter::deleteDir()} method.
+     * Test {@see AwsS3CloudFrontAdapter::deleteDirectory()} method.
      *
      * @return void
-     * @covers ::deleteDir()
+     * @covers ::deleteDirectory()
      */
     public function testDeleteDir(): void
     {
@@ -475,10 +475,10 @@ class AwsS3CloudFrontAdapterTest extends TestCase
     }
 
     /**
-     * Test {@see AwsS3CloudFrontAdapter::deleteDir()} method with CloudFront config set.
+     * Test {@see AwsS3CloudFrontAdapter::deleteDirectory()} method with CloudFront config set.
      *
      * @return void
-     * @covers ::deleteDir()
+     * @covers ::deleteDirectory()
      * @covers ::applyCloudFrontPathPrefix()
      * @covers ::createCloudFrontInvalidation()
      */
@@ -526,12 +526,12 @@ class AwsS3CloudFrontAdapterTest extends TestCase
     }
 
     /**
-     * Test {@see AwsS3CloudFrontAdapter::upload()} method.
+     * Test {@see AwsS3CloudFrontAdapter::write()} method.
      *
      * @return void
-     * @covers ::upload()
+     * @covers ::write()
      */
-    public function testUpload(): void
+    public function testWrite(): void
     {
         $invocations = [];
         $s3Client = static::s3ClientFactory(function (Command $command) use (&$invocations): Result {
@@ -555,12 +555,12 @@ class AwsS3CloudFrontAdapterTest extends TestCase
     }
 
     /**
-     * Test {@see AwsS3CloudFrontAdapter::upload()} method with CloudFront config set to a new destination.
+     * Test {@see AwsS3CloudFrontAdapter::write()} method with CloudFront config set to a new destination.
      *
      * @return void
-     * @covers ::upload()
+     * @covers ::write()
      */
-    public function testUploadCloudFrontNotExistingObject(): void
+    public function testWriteCloudFrontNotExistingObject(): void
     {
         $invocations = [];
         $s3Client = static::s3ClientFactory(function (Command $command) use (&$invocations): Result {
@@ -602,14 +602,14 @@ class AwsS3CloudFrontAdapterTest extends TestCase
     }
 
     /**
-     * Test {@see AwsS3CloudFrontAdapter::upload()} method with CloudFront config set to an existing destination.
+     * Test {@see AwsS3CloudFrontAdapter::write()} method with CloudFront config set to an existing destination.
      *
      * @return void
-     * @covers ::upload()
+     * @covers ::write()
      * @covers ::applyCloudFrontPathPrefix()
      * @covers ::createCloudFrontInvalidation()
      */
-    public function testUploadCloudFrontExistingObject(): void
+    public function testWriteCloudFrontExistingObject(): void
     {
         $invocations = [];
         $s3Client = static::s3ClientFactory(function (Command $command) use (&$invocations): Result {
