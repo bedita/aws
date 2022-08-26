@@ -87,7 +87,7 @@ class AwsS3CloudFrontAdapter extends AwsS3V3Adapter
     /**
      * @inheritDoc
      */
-    public function copy($path, $newpath, Config $config): void
+    public function copy(string $path, string $newpath, Config $config): void
     {
         $existed = $this->hasCloudFrontConfig() && $this->fileExists($newpath);
         parent::copy($path, $newpath, $config);
@@ -99,7 +99,7 @@ class AwsS3CloudFrontAdapter extends AwsS3V3Adapter
     /**
      * @inheritDoc
      */
-    public function delete($path): void
+    public function delete(string $path): void
     {
         $existed = $this->hasCloudFrontConfig() && $this->fileExists($path);
         parent::delete($path);
@@ -111,7 +111,7 @@ class AwsS3CloudFrontAdapter extends AwsS3V3Adapter
     /**
      * @inheritDoc
      */
-    public function deleteDirectory($dirname): void
+    public function deleteDirectory(string $dirname): void
     {
         parent::deleteDirectory($dirname);
         $this->createCloudFrontInvalidation(rtrim($dirname, '/') . '/*');
