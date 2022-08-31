@@ -84,7 +84,7 @@ class SnsTransportTest extends TestCase
     {
         return [
             'simple' => [
-                ['message' => 'Hello, world!', 'headers' => ''],
+                ['headers' => '', 'message' => 'Hello, world!'],
                 [
                     'Message' => 'Hello, world!',
                     'PhoneNumber' => '+1-202-555-0118',
@@ -98,7 +98,7 @@ class SnsTransportTest extends TestCase
                     ->setBodyText('Hello, world!'),
             ],
             'with sender' => [
-                ['message' => 'Hello, world!', 'headers' => ''],
+                ['headers' => '', 'message' => 'Hello, world!'],
                 [
                     'Message' => 'Hello, world!',
                     'PhoneNumber' => '+1-202-555-0118',
@@ -114,7 +114,7 @@ class SnsTransportTest extends TestCase
                     ->setBodyText('Hello, world!'),
             ],
             'with SMS type' => [
-                ['message' => 'Hello, world!', 'headers' => ''],
+                ['headers' => '', 'message' => 'Hello, world!'],
                 [
                     'Message' => 'Hello, world!',
                     'PhoneNumber' => '+1-202-555-0118',
@@ -130,7 +130,7 @@ class SnsTransportTest extends TestCase
                     ->setBodyText('Hello, world!'),
             ],
             'with sender and SMS type' => [
-                ['message' => 'Hello, world!', 'headers' => ''],
+                ['headers' => '', 'message' => 'Hello, world!'],
                 [
                     'Message' => 'Hello, world!',
                     'PhoneNumber' => '+1-202-555-0118',

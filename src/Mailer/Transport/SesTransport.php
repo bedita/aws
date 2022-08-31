@@ -49,7 +49,7 @@ class SesTransport extends AbstractTransport
      *
      * @var \Aws\Ses\SesClient|null
      */
-    protected $client;
+    protected ?SesClient $client;
 
     /**
      * @inheritDoc
@@ -78,19 +78,19 @@ class SesTransport extends AbstractTransport
     /**
      * @inheritDoc
      */
-    public function send(Message $email): array
+    public function send(Message $message): array
     {
         $headerList = ['from', 'sender', 'replyTo', 'readReceipt', 'returnPath', 'to', 'cc', 'bcc', 'subject'];
-        $headers = $email->getHeadersString($headerList, static::EOL);
+        $headers = $message->getHeadersString($headerList, static::EOL);
 
-        $message = $email->getBodyString(static::EOL);
+        $body = $message->getBodyString(static::EOL);
 
         $this->getClient()->sendRawEmail([
             'RawMessage' => [
-                'Data' => $headers . static::EOL . static::EOL . $message,
+                'Data' => $headers . static::EOL . static::EOL . $body,
             ],
         ]);
 
-        return compact('headers', 'message');
+        return ['headers' => $headers, 'message' => $body];
     }
 }

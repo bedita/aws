@@ -21,7 +21,7 @@ use BEdita\AWS\Mailer\Transport\SnsTransport;
 use BEdita\Core\Filesystem\FilesystemRegistry;
 use Cake\Core\BasePlugin;
 use Cake\Core\PluginApplicationInterface;
-use Cake\Mailer\Email;
+use Cake\Mailer\Mailer;
 
 /**
  * Plugin class.
@@ -36,7 +36,7 @@ class Plugin extends BasePlugin
         parent::bootstrap($app);
 
         // Register SES (email) and SNS (SMS) transports.
-        Email::setDsnClassMap([
+        Mailer::setDsnClassMap([
             'ses' => SesTransport::class,
             'sns' => SnsTransport::class,
         ]);

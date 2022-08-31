@@ -34,7 +34,7 @@ class PluginTest extends TestCase
      *
      * @var \BEdita\AWS\Plugin
      */
-    protected $plugin;
+    protected Plugin $plugin;
 
     /**
      * @inheritDoc
@@ -55,9 +55,9 @@ class PluginTest extends TestCase
     public function testBootstrap(): void
     {
         $app = new class (CONFIG) extends BaseApplication {
-            public function middleware(MiddlewareQueue $middleware): MiddlewareQueue
+            public function middleware(MiddlewareQueue $middlewareQueue): MiddlewareQueue
             {
-                return $middleware;
+                return $middlewareQueue;
             }
         };
 
