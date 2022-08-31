@@ -27,10 +27,10 @@ use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
 use Lcobucci\Clock\FrozenClock;
 use Lcobucci\JWT\Encoding\JoseEncoder;
-use Lcobucci\JWT\Signer\Ecdsa\MultibyteStringConverter;
 use Lcobucci\JWT\Signer\Ecdsa\Sha256;
 use Lcobucci\JWT\Signer\Key;
 use Lcobucci\JWT\Token\Parser as TokenParser;
+use Lcobucci\JWT\UnencryptedToken;
 use Lcobucci\JWT\Validation\Constraint\LooseValidAt;
 use Lcobucci\JWT\Validation\Constraint\SignedWith;
 use Lcobucci\JWT\Validation\Validator;
@@ -78,7 +78,7 @@ class AlbAuthenticator extends TokenAuthenticator
      *
      * @var array|null
      */
-    protected $payload = null;
+    protected ?array $payload = null;
 
     /**
      * Authenticates the identity based on a JWT token contained in a request.
@@ -185,19 +185,16 @@ class AlbAuthenticator extends TokenAuthenticator
      */
     protected function decodeToken(string $token): ?array
     {
-        $parser = new TokenParser(new JoseEncoder());
-        /** @var \Lcobucci\JWT\UnencryptedToken $jwt */
-        $jwt = $parser->parse($token);
-
+        $jwt = (new TokenParser(new JoseEncoder()))->parse($token);
         $kid = $jwt->headers()->get('kid');
-        if (empty($kid) || !is_string($kid)) {
+        if (empty($kid) || !is_string($kid) || !$jwt instanceof UnencryptedToken) {
             return null;
         }
 
         (new Validator())->assert(
             $jwt,
-            new SignedWith(new Sha256(new MultibyteStringConverter()), $this->getKey($kid)),
-            new LooseValidAt(new FrozenClock(FrozenTime::now()))
+            new SignedWith(Sha256::create(), $this->getKey($kid)),
+            new LooseValidAt(new FrozenClock(FrozenTime::now())),
         );
 
         return $jwt->claims()->all();

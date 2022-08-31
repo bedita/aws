@@ -24,7 +24,6 @@ use BEdita\AWS\Authenticator\AlbAuthenticator;
 use Cake\Http\ServerRequest;
 use Cake\I18n\FrozenTime;
 use Cake\Utility\Text;
-use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
@@ -33,7 +32,6 @@ use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use Lcobucci\JWT\Encoding\ChainedFormatter;
 use Lcobucci\JWT\Encoding\JoseEncoder;
-use Lcobucci\JWT\Signer\Ecdsa\MultibyteStringConverter;
 use Lcobucci\JWT\Signer\Ecdsa\Sha256;
 use Lcobucci\JWT\Signer\Key;
 use Lcobucci\JWT\Signer\Key\InMemory;
@@ -48,8 +46,6 @@ use PHPUnit\Framework\TestCase;
  */
 class AlbAuthenticatorTest extends TestCase
 {
-    use ArraySubsetAsserts;
-
     /**
      * Key ID.
      *
@@ -97,7 +93,9 @@ class AlbAuthenticatorTest extends TestCase
         openssl_pkey_export($key, $privateKey);
         $keyInfo = openssl_pkey_get_details($key);
         assert($keyInfo !== false);
-        openssl_free_key($key);
+        if (is_resource($key)) {
+            openssl_free_key($key);
+        }
 
         $this->keyId = Text::uuid();
         $this->privateKey = InMemory::plainText($privateKey);
@@ -137,7 +135,7 @@ class AlbAuthenticatorTest extends TestCase
             ->expiresAt(FrozenTime::now()->addMinute())
             ->withHeader('kid', $this->keyId)
             ->relatedTo('gustavo@example.com')
-            ->getToken(new Sha256(new MultibyteStringConverter()), $this->privateKey)
+            ->getToken(Sha256::create(), $this->privateKey)
             ->toString();
 
         $result = $authenticator->authenticate(
@@ -152,13 +150,14 @@ class AlbAuthenticatorTest extends TestCase
         static::assertEquals(new ArrayObject(['sub' => 'gustavo@example.com']), $data);
 
         static::assertCount(1, $this->history);
-        static::assertSame('GET', (string)$this->history[0]['request']->getMethod());
+        static::assertSame('GET', $this->history[0]['request']->getMethod());
         $expectedRequestUrl = sprintf('https://public-keys.auth.elb.eu-south-1.amazonaws.com/%s', $this->keyId);
         static::assertSame($expectedRequestUrl, (string)$this->history[0]['request']->getUri());
 
         $payload = $authenticator->getPayload();
-        assert(is_array($payload));
-        static::assertArraySubset(['sub' => 'gustavo@example.com'], $payload);
+        static::assertIsArray($payload);
+        static::assertArrayHasKey('sub', $payload);
+        static::assertSame('gustavo@example.com', $payload['sub']);
     }
 
     /**
@@ -238,7 +237,7 @@ class AlbAuthenticatorTest extends TestCase
             ->canOnlyBeUsedAfter(FrozenTime::now()->subDay())
             ->expiresAt(FrozenTime::now()->subDay()->addMinute())
             ->relatedTo('gustavo@example.com')
-            ->getToken(new Sha256(new MultibyteStringConverter()), $this->privateKey)
+            ->getToken(Sha256::create(), $this->privateKey)
             ->toString();
 
         $result = $authenticator->authenticate(
@@ -280,7 +279,7 @@ class AlbAuthenticatorTest extends TestCase
             ->expiresAt(FrozenTime::now()->subDay()->addMinute())
             ->withHeader('kid', $this->keyId)
             ->relatedTo('gustavo@example.com')
-            ->getToken(new Sha256(new MultibyteStringConverter()), $this->privateKey)
+            ->getToken(Sha256::create(), $this->privateKey)
             ->toString();
 
         $result = $authenticator->authenticate(
@@ -297,7 +296,7 @@ class AlbAuthenticatorTest extends TestCase
         );
 
         static::assertCount(1, $this->history);
-        static::assertSame('GET', (string)$this->history[0]['request']->getMethod());
+        static::assertSame('GET', $this->history[0]['request']->getMethod());
         static::assertSame($expectedRequestUrl, (string)$this->history[0]['request']->getUri());
 
         static::assertNull($authenticator->getPayload());
@@ -323,7 +322,7 @@ class AlbAuthenticatorTest extends TestCase
             ->expiresAt(FrozenTime::now()->subDay()->addMinute())
             ->withHeader('kid', $this->keyId)
             ->relatedTo('gustavo@example.com')
-            ->getToken(new Sha256(new MultibyteStringConverter()), $this->privateKey)
+            ->getToken(Sha256::create(), $this->privateKey)
             ->toString();
 
         $result = $authenticator->authenticate(
@@ -337,7 +336,7 @@ class AlbAuthenticatorTest extends TestCase
         static::assertSame("The token violates some mandatory constraints, details:\n- The token is expired", $errors['message']);
 
         static::assertCount(1, $this->history);
-        static::assertSame('GET', (string)$this->history[0]['request']->getMethod());
+        static::assertSame('GET', $this->history[0]['request']->getMethod());
         $expectedRequestUrl = sprintf('https://public-keys.auth.elb.eu-south-1.amazonaws.com/%s', $this->keyId);
         static::assertSame($expectedRequestUrl, (string)$this->history[0]['request']->getUri());
 
@@ -368,7 +367,9 @@ class AlbAuthenticatorTest extends TestCase
         ]);
         assert($key !== false);
         openssl_pkey_export($key, $privateKey);
-        openssl_free_key($key);
+        if (is_resource($key)) {
+            openssl_free_key($key);
+        }
         $privateKey = InMemory::plainText($privateKey);
 
         $token = (new Builder(new JoseEncoder(), ChainedFormatter::default()))
@@ -377,7 +378,7 @@ class AlbAuthenticatorTest extends TestCase
             ->expiresAt(FrozenTime::now()->addMinute())
             ->withHeader('kid', $this->keyId)
             ->relatedTo('gustavo@example.com')
-            ->getToken(new Sha256(new MultibyteStringConverter()), $privateKey)
+            ->getToken(Sha256::create(), $privateKey)
             ->toString();
 
         $result = $authenticator->authenticate(
@@ -391,7 +392,7 @@ class AlbAuthenticatorTest extends TestCase
         static::assertSame("The token violates some mandatory constraints, details:\n- Token signature mismatch", $errors['message']);
 
         static::assertCount(1, $this->history);
-        static::assertSame('GET', (string)$this->history[0]['request']->getMethod());
+        static::assertSame('GET', $this->history[0]['request']->getMethod());
         $expectedRequestUrl = sprintf('https://public-keys.auth.elb.eu-south-1.amazonaws.com/%s', $this->keyId);
         static::assertSame($expectedRequestUrl, (string)$this->history[0]['request']->getUri());
 
@@ -432,7 +433,7 @@ class AlbAuthenticatorTest extends TestCase
         static::assertSame("The token violates some mandatory constraints, details:\n- Token signer mismatch", $errors['message']);
 
         static::assertCount(1, $this->history);
-        static::assertSame('GET', (string)$this->history[0]['request']->getMethod());
+        static::assertSame('GET', $this->history[0]['request']->getMethod());
         $expectedRequestUrl = sprintf('https://public-keys.auth.elb.eu-south-1.amazonaws.com/%s', $this->keyId);
         static::assertSame($expectedRequestUrl, (string)$this->history[0]['request']->getUri());
 
@@ -458,7 +459,7 @@ class AlbAuthenticatorTest extends TestCase
             ->canOnlyBeUsedAfter(FrozenTime::now())
             ->expiresAt(FrozenTime::now()->addMinute())
             ->withHeader('kid', $this->keyId)
-            ->getToken(new Sha256(new MultibyteStringConverter()), $this->privateKey)
+            ->getToken(Sha256::create(), $this->privateKey)
             ->toString();
 
         $result = $authenticator->authenticate(
@@ -470,7 +471,7 @@ class AlbAuthenticatorTest extends TestCase
         static::assertEmpty($result->getErrors());
 
         static::assertCount(1, $this->history);
-        static::assertSame('GET', (string)$this->history[0]['request']->getMethod());
+        static::assertSame('GET', $this->history[0]['request']->getMethod());
         $expectedRequestUrl = sprintf('https://public-keys.auth.elb.eu-south-1.amazonaws.com/%s', $this->keyId);
         static::assertSame($expectedRequestUrl, (string)$this->history[0]['request']->getUri());
     }
@@ -486,7 +487,8 @@ class AlbAuthenticatorTest extends TestCase
         $authenticator = new AlbAuthenticator(
             new CallbackIdentifier(['callback' => function (array $credentials) use (&$invoked): ArrayAccess {
                 $invoked++;
-                static::assertArraySubset(['email' => 'gustavo@example.com'], $credentials);
+                static::assertArrayHasKey('email', $credentials);
+                static::assertSame('gustavo@example.com', $credentials['email']);
 
                 return new ArrayObject(['id' => 42, 'username' => 'gustavo', 'email' => 'gustavo@example.com']);
             }]),
@@ -506,7 +508,7 @@ class AlbAuthenticatorTest extends TestCase
             ->expiresAt(FrozenTime::now()->addMinute())
             ->withHeader('kid', $this->keyId)
             ->relatedTo('gustavo@example.com')
-            ->getToken(new Sha256(new MultibyteStringConverter()), $this->privateKey)
+            ->getToken(Sha256::create(), $this->privateKey)
             ->toString();
 
         $result = $authenticator->authenticate(
@@ -520,13 +522,14 @@ class AlbAuthenticatorTest extends TestCase
         static::assertSame(1, $invoked, 'Expected identifier to be invoked exactly once');
 
         static::assertCount(1, $this->history);
-        static::assertSame('GET', (string)$this->history[0]['request']->getMethod());
+        static::assertSame('GET', $this->history[0]['request']->getMethod());
         $expectedRequestUrl = sprintf('https://public-keys.auth.elb.eu-south-1.amazonaws.com/%s', $this->keyId);
         static::assertSame($expectedRequestUrl, (string)$this->history[0]['request']->getUri());
 
         $payload = $authenticator->getPayload();
-        assert(is_array($payload));
-        static::assertArraySubset(['sub' => 'gustavo@example.com'], $payload);
+        static::assertIsArray($payload);
+        static::assertArrayHasKey('sub', $payload);
+        static::assertSame('gustavo@example.com', $payload['sub']);
     }
 
     /**
@@ -540,7 +543,8 @@ class AlbAuthenticatorTest extends TestCase
         $authenticator = new AlbAuthenticator(
             new CallbackIdentifier(['callback' => function (array $credentials) use (&$invoked): ?ArrayAccess {
                 $invoked++;
-                static::assertArraySubset(['email' => 'gustavo@example.com'], $credentials);
+                static::assertArrayHasKey('email', $credentials);
+                static::assertSame('gustavo@example.com', $credentials['email']);
 
                 return null;
             }]),
@@ -560,7 +564,7 @@ class AlbAuthenticatorTest extends TestCase
             ->expiresAt(FrozenTime::now()->addMinute())
             ->withHeader('kid', $this->keyId)
             ->relatedTo('gustavo@example.com')
-            ->getToken(new Sha256(new MultibyteStringConverter()), $this->privateKey)
+            ->getToken(Sha256::create(), $this->privateKey)
             ->toString();
 
         $result = $authenticator->authenticate(
@@ -573,12 +577,13 @@ class AlbAuthenticatorTest extends TestCase
         static::assertSame(1, $invoked, 'Expected identifier to be invoked exactly once');
 
         static::assertCount(1, $this->history);
-        static::assertSame('GET', (string)$this->history[0]['request']->getMethod());
+        static::assertSame('GET', $this->history[0]['request']->getMethod());
         $expectedRequestUrl = sprintf('https://public-keys.auth.elb.eu-south-1.amazonaws.com/%s', $this->keyId);
         static::assertSame($expectedRequestUrl, (string)$this->history[0]['request']->getUri());
 
         $payload = $authenticator->getPayload();
-        assert(is_array($payload));
-        static::assertArraySubset(['sub' => 'gustavo@example.com'], $payload);
+        static::assertIsArray($payload);
+        static::assertArrayHasKey('sub', $payload);
+        static::assertSame('gustavo@example.com', $payload['sub']);
     }
 }
