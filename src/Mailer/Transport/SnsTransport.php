@@ -43,7 +43,7 @@ class SnsTransport extends AbstractTransport
      *
      * @var \Aws\Sns\SnsClient|null
      */
-    protected $client;
+    protected ?SnsClient $client;
 
     /**
      * @inheritDoc
@@ -70,21 +70,16 @@ class SnsTransport extends AbstractTransport
     }
 
     /**
-     * Send mail
-     *
-     * @param \Cake\Mailer\Message $email Email message.
-     * @return array
+     * @inheritDoc
      */
-    public function send(Message $email): array
+    public function send(Message $message): array
     {
-        $from = $email->getFrom();
-        $to = $email->getTo();
+        $from = $message->getFrom();
+        $to = $message->getTo();
 
         $phoneNumber = reset($to);
         $senderId = trim(reset($from));
-        /** @var string $message */
-        $message = $email->getBodyText();
-        $message = trim($message);
+        $body = trim($message->getBodyText());
         $smsType = $this->getConfig('smsType');
 
         $attributes = [];
@@ -102,11 +97,11 @@ class SnsTransport extends AbstractTransport
         }
 
         $this->getClient()->publish([
-            'Message' => $message,
+            'Message' => $body,
             'PhoneNumber' => $phoneNumber,
             'MessageAttributes' => $attributes,
         ]);
 
-        return compact('message') + ['headers' => ''];
+        return ['headers' => '', 'message' => $body];
     }
 }

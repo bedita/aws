@@ -47,14 +47,14 @@ class S3Adapter extends FilesystemAdapter
      *
      * @var \Aws\S3\S3Client|null
      */
-    protected $client;
+    protected ?S3Client $client;
 
     /**
      * AWS CloudFront client.
      *
      * @var \Aws\CloudFront\CloudFrontClient|null
      */
-    protected $cloudFrontClient;
+    protected ?CloudFrontClient $cloudFrontClient;
 
     /**
      * @inheritDoc

@@ -22,7 +22,6 @@ use Aws\S3\Exception\S3Exception;
 use Aws\S3\S3Client;
 use BEdita\AWS\Filesystem\Adapter\AwsS3CloudFrontAdapter;
 use DomainException;
-use GuzzleHttp\Psr7\Response;
 use InvalidArgumentException;
 use League\Flysystem\Config;
 use PHPUnit\Framework\TestCase;
@@ -81,6 +80,7 @@ class AwsS3CloudFrontAdapterTest extends TestCase
      * @covers ::__construct()
      * @covers ::getCloudFrontClient()
      * @covers ::hasCloudFrontConfig()
+     * @covers ::getDistributionId()
      */
     public function testConstruct(): void
     {
@@ -88,8 +88,7 @@ class AwsS3CloudFrontAdapterTest extends TestCase
         $adapter = new AwsS3CloudFrontAdapter($s3Client, 'example-bucket', '', [], true, null);
 
         static::assertNull($adapter->getCloudFrontClient());
-        // `getDistributionId()` method removed for now
-        // static::assertNull($adapter->getDistributionId());
+        static::assertNull($adapter->getDistributionId());
         static::assertFalse($adapter->hasCloudFrontConfig());
     }
 
@@ -116,6 +115,7 @@ class AwsS3CloudFrontAdapterTest extends TestCase
      * @covers ::__construct()
      * @covers ::getCloudFrontClient()
      * @covers ::hasCloudFrontConfig()
+     * @covers ::getDistributionId()
      */
     public function testConstructWithDistribution(): void
     {
@@ -125,8 +125,7 @@ class AwsS3CloudFrontAdapterTest extends TestCase
         $adapter = new AwsS3CloudFrontAdapter($s3Client, 'example-bucket', '', compact('distributionId'), true, $cloudFrontClient);
 
         static::assertSame($cloudFrontClient, $adapter->getCloudFrontClient());
-        // `getDistributionId()` method removed for now
-        //static::assertSame($distributionId, $adapter->getDistributionId());
+        static::assertSame($distributionId, $adapter->getDistributionId());
         static::assertTrue($adapter->hasCloudFrontConfig());
     }
 
@@ -194,12 +193,6 @@ class AwsS3CloudFrontAdapterTest extends TestCase
                             throw new InvalidArgumentException(sprintf('Unexpected Key: %s', $command['Key']));
                     }
 
-                case 'ListObjects':
-                    static::assertSame('example-bucket', $command['Bucket']);
-                    static::assertSame('new.jpg/', $command['Prefix']);
-
-                    throw new S3Exception('', $command, ['response' => new Response(404)]);
-
                 case 'GetObjectAcl':
                     return new Result([
                         'Grants' => [['Grantee' => ['URI' => ''], 'Permission' => 'READ']],
@@ -224,8 +217,6 @@ class AwsS3CloudFrontAdapterTest extends TestCase
         $adapter = new AwsS3CloudFrontAdapter($s3Client, 'example-bucket', '', ['distributionId' => 'E2EXAMPLE'], true, $cloudFrontClient);
 
         $adapter->copy('old.jpg', 'new.jpg', new Config());
-        // $invocations array now differs - is this a problem/bug?
-        // static::assertSame(['HeadObject', 'ListObjects', 'GetObjectAcl', 'HeadObject', 'CopyObject'], $invocations);
         static::assertSame(['HeadObject', 'GetObjectAcl', 'HeadObject', 'CopyObject'], $invocations);
     }
 
@@ -248,7 +239,6 @@ class AwsS3CloudFrontAdapterTest extends TestCase
                     static::assertSame('example-bucket', $command['Bucket']);
                     switch ($command['Key']) {
                         case 'old.jpg':
-                            return new Result(['ContentLength' => 1]);
                         case 'new.jpg':
                             return new Result(['ContentLength' => 1]);
                         default:
@@ -288,9 +278,7 @@ class AwsS3CloudFrontAdapterTest extends TestCase
         $adapter = new AwsS3CloudFrontAdapter($s3Client, 'example-bucket', '', ['distributionId' => 'E2EXAMPLE'], true, $cloudFrontClient);
 
         $adapter->copy('old.jpg', 'new.jpg', new Config());
-        // $invocations array now differs - is this a problem/bug?
-        // static::assertSame(['HeadObject', 'GetObjectAcl', 'HeadObject', 'CopyObject', 'CreateInvalidation'], $invocations);
-        static::assertSame(['HeadObject', 'GetObjectAcl', 'HeadObject', 'CopyObject'], $invocations);
+        static::assertSame(['HeadObject', 'GetObjectAcl', 'HeadObject', 'CopyObject', 'CreateInvalidation'], $invocations);
     }
 
     /**
@@ -311,18 +299,6 @@ class AwsS3CloudFrontAdapterTest extends TestCase
                     static::assertSame('foo/file.txt', $command['Key']);
 
                     return new Result([]);
-
-                case 'HeadObject':
-                    static::assertSame('example-bucket', $command['Bucket']);
-                    static::assertSame('foo/file.txt', $command['Key']);
-
-                    throw new S3Exception('', $command);
-
-                case 'ListObjects':
-                    static::assertSame('example-bucket', $command['Bucket']);
-                    static::assertSame('foo/file.txt/', $command['Prefix']);
-
-                    throw new S3Exception('', $command, ['response' => new Response(404)]);
             }
 
             throw new InvalidArgumentException(sprintf('Unexpected command: %s', $name));
@@ -330,8 +306,6 @@ class AwsS3CloudFrontAdapterTest extends TestCase
         $adapter = new AwsS3CloudFrontAdapter($s3Client, 'example-bucket', 'foo/', [], true, null);
 
         $adapter->delete('file.txt');
-        // $invocations array now differs - is this a problem/bug?
-        // static::assertSame(['DeleteObject', 'HeadObject', 'ListObjects'], $invocations);
         static::assertSame(['DeleteObject'], $invocations);
     }
 
@@ -359,12 +333,6 @@ class AwsS3CloudFrontAdapterTest extends TestCase
                     static::assertSame('foo/file.txt', $command['Key']);
 
                     throw new S3Exception('', $command);
-
-                case 'ListObjects':
-                    static::assertSame('example-bucket', $command['Bucket']);
-                    static::assertSame('foo/file.txt/', $command['Prefix']);
-
-                    throw new S3Exception('', $command, ['response' => new Response(404)]);
             }
 
             throw new InvalidArgumentException(sprintf('Unexpected command: %s', $name));
@@ -378,8 +346,6 @@ class AwsS3CloudFrontAdapterTest extends TestCase
         $adapter = new AwsS3CloudFrontAdapter($s3Client, 'example-bucket', 'foo/', ['distributionId' => 'E2EXAMPLE', 'cloudFrontPathPrefix' => 'bar/'], true, $cloudFrontClient);
 
         $adapter->delete('file.txt');
-        // $invocations array now differs - is this a problem/bug?
-        // static::assertSame(['HeadObject', 'ListObjects', 'DeleteObject', 'HeadObject', 'ListObjects'], $invocations);
         static::assertSame(['HeadObject', 'DeleteObject'], $invocations);
     }
 
@@ -417,12 +383,6 @@ class AwsS3CloudFrontAdapterTest extends TestCase
                     }
 
                     throw new S3Exception('', $command);
-
-                case 'ListObjects':
-                    static::assertSame('example-bucket', $command['Bucket']);
-                    static::assertSame('foo/file.txt/', $command['Prefix']);
-
-                    throw new S3Exception('', $command, ['response' => new Response(404)]);
             }
 
             throw new InvalidArgumentException(sprintf('Unexpected command: %s', $name));
@@ -445,9 +405,7 @@ class AwsS3CloudFrontAdapterTest extends TestCase
         $adapter = new AwsS3CloudFrontAdapter($s3Client, 'example-bucket', 'foo/', ['distributionId' => 'E2EXAMPLE', 'cloudFrontPathPrefix' => 'bar/'], true, $cloudFrontClient);
 
         $adapter->delete('file.txt');
-        // $invocations array now differs - is this a problem/bug?
-        // static::assertSame(['HeadObject', 'DeleteObject', 'HeadObject', 'ListObjects', 'CreateInvalidation'], $invocations);
-        static::assertSame(['HeadObject', 'DeleteObject'], $invocations);
+        static::assertSame(['HeadObject', 'DeleteObject', 'CreateInvalidation'], $invocations);
     }
 
     /**
@@ -532,9 +490,7 @@ class AwsS3CloudFrontAdapterTest extends TestCase
         $adapter = new AwsS3CloudFrontAdapter($s3Client, 'example-bucket', 'foo/', ['distributionId' => 'E2EXAMPLE', 'cloudFrontPathPrefix' => 'bar/'], true, $cloudFrontClient);
 
         $adapter->deleteDirectory('my/sub/path');
-        // $invocations array now differs - is this a problem/bug?
-        // static::assertSame(['ListObjects', 'DeleteObjects', 'CreateInvalidation'], $invocations);
-        static::assertSame(['ListObjects', 'DeleteObjects'], $invocations);
+        static::assertSame(['ListObjects', 'DeleteObjects', 'CreateInvalidation'], $invocations);
     }
 
     /**
@@ -591,12 +547,6 @@ class AwsS3CloudFrontAdapterTest extends TestCase
                     static::assertSame('foo/file.txt', $command['Key']);
 
                     throw new S3Exception('', $command);
-
-                case 'ListObjects':
-                    static::assertSame('example-bucket', $command['Bucket']);
-                    static::assertSame('foo/file.txt/', $command['Prefix']);
-
-                    throw new S3Exception('', $command, ['response' => new Response(404)]);
             }
 
             throw new InvalidArgumentException(sprintf('Unexpected command: %s', $name));
@@ -610,8 +560,6 @@ class AwsS3CloudFrontAdapterTest extends TestCase
         $adapter = new AwsS3CloudFrontAdapter($s3Client, 'example-bucket', 'foo/', ['distributionId' => 'E2EXAMPLE', 'cloudFrontPathPrefix' => 'bar/'], true, $cloudFrontClient);
 
         $adapter->write('file.txt', 'data', new Config());
-        // $invocations array now differs - is this a problem/bug?
-        // static::assertSame(['HeadObject', 'ListObjects', 'PutObject'], $invocations);
         static::assertSame(['HeadObject', 'PutObject'], $invocations);
     }
 
@@ -670,8 +618,6 @@ class AwsS3CloudFrontAdapterTest extends TestCase
         $adapter = new AwsS3CloudFrontAdapter($s3Client, 'example-bucket', 'foo/', ['distributionId' => 'E2EXAMPLE', 'cloudFrontPathPrefix' => 'bar/'], true, $cloudFrontClient);
 
         $adapter->write('file.txt', 'data', new Config());
-        // $invocations array now differs - is this a problem/bug?
-        // static::assertSame(['HeadObject', 'PutObject', 'CreateInvalidation'], $invocations);
-        static::assertSame(['HeadObject', 'PutObject'], $invocations);
+        static::assertSame(['HeadObject', 'PutObject', 'CreateInvalidation'], $invocations);
     }
 }

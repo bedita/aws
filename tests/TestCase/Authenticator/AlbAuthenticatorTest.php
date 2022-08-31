@@ -35,6 +35,7 @@ use Lcobucci\JWT\Encoding\ChainedFormatter;
 use Lcobucci\JWT\Encoding\JoseEncoder;
 use Lcobucci\JWT\Signer\Ecdsa\MultibyteStringConverter;
 use Lcobucci\JWT\Signer\Ecdsa\Sha256;
+use Lcobucci\JWT\Signer\Key;
 use Lcobucci\JWT\Signer\Key\InMemory;
 use Lcobucci\JWT\Signer\None;
 use Lcobucci\JWT\Token\Builder;
@@ -54,28 +55,28 @@ class AlbAuthenticatorTest extends TestCase
      *
      * @var string
      */
-    protected $keyId;
+    protected string $keyId;
 
     /**
      * Private key material.
      *
      * @var \Lcobucci\JWT\Signer\Key
      */
-    protected $privateKey;
+    protected Key $privateKey;
 
     /**
      * Requests history.
      *
      * @var array<int, array{request: \GuzzleHttp\Psr7\Request, response: \GuzzleHttp\Psr7\Response|null, error: \GuzzleHttp\Exception\GuzzleException|null, options: array}>
      */
-    protected $history = [];
+    protected array $history = [];
 
     /**
      * Guzzle HTTP handler.
      *
      * @var HandlerStack
      */
-    protected $handler;
+    protected HandlerStack $handler;
 
     /**
      * @inheritDoc

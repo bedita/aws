@@ -32,7 +32,21 @@ class AwsS3CloudFrontAdapter extends AwsS3V3Adapter
      *
      * @var \Aws\CloudFront\CloudFrontClient|null
      */
-    protected $cloudfrontClient = null;
+    protected ?CloudFrontClient $cloudfrontClient = null;
+
+    /**
+     * CloudFront distribution ID.
+     *
+     * @var string|null
+     */
+    protected ?string $distributionId = null;
+
+    /**
+     * CloudFront distribution path prefix.
+     *
+     * @var string|null
+     */
+    protected ?string $cloudfrontPathPrefix = null;
 
     /**
      * Adapter constructor.
@@ -44,7 +58,7 @@ class AwsS3CloudFrontAdapter extends AwsS3V3Adapter
      * @param bool $streamReads Whether reads should be streamed.
      * @param \Aws\CloudFront\CloudFrontClient|null $cloudfrontClient CloudFront client instance, or `null`.
      */
-    public function __construct(S3ClientInterface $client, $bucket, $prefix = '', array $options = [], $streamReads = true, ?CloudFrontClient $cloudfrontClient = null)
+    public function __construct(S3ClientInterface $client, string $bucket, string $prefix = '', array $options = [], $streamReads = true, ?CloudFrontClient $cloudfrontClient = null)
     {
         parent::__construct($client, $bucket, $prefix, null, null, $options, $streamReads);
 
@@ -52,6 +66,8 @@ class AwsS3CloudFrontAdapter extends AwsS3V3Adapter
             throw new DomainException('When `distributionId` is set, a CloudFront client instance is required');
         }
         $this->cloudfrontClient = $cloudfrontClient;
+        $this->distributionId = $options['distributionId'] ?? null;
+        $this->cloudfrontPathPrefix = $options['cloudFrontPathPrefix'] ?? null;
     }
 
     /**
@@ -69,12 +85,10 @@ class AwsS3CloudFrontAdapter extends AwsS3V3Adapter
      *
      * @return string|null
      */
-    // TODO: `options` attribute is now private in base class,
-    // and this method doesn't work anymore - see if there's a different way to obtain this ID.
-    // public function getDistributionId(): ?string
-    // {
-    //     return $this->options['distributionId'] ?? null;
-    // }
+    public function getDistributionId(): ?string
+    {
+        return $this->distributionId;
+    }
 
     /**
      * Check whether CloudFront configuration is set.
@@ -89,12 +103,12 @@ class AwsS3CloudFrontAdapter extends AwsS3V3Adapter
     /**
      * @inheritDoc
      */
-    public function copy(string $path, string $newpath, Config $config): void
+    public function copy(string $source, string $destination, Config $config): void
     {
-        $existed = $this->hasCloudFrontConfig() && $this->fileExists($newpath);
-        parent::copy($path, $newpath, $config);
+        $existed = $this->hasCloudFrontConfig() && $this->fileExists($destination);
+        parent::copy($source, $destination, $config);
         if ($existed) {
-            $this->createCloudFrontInvalidation($newpath);
+            $this->createCloudFrontInvalidation($destination);
         }
     }
 
@@ -113,19 +127,19 @@ class AwsS3CloudFrontAdapter extends AwsS3V3Adapter
     /**
      * @inheritDoc
      */
-    public function deleteDirectory(string $dirname): void
+    public function deleteDirectory(string $path): void
     {
-        parent::deleteDirectory($dirname);
-        $this->createCloudFrontInvalidation(rtrim($dirname, '/') . '/*');
+        parent::deleteDirectory($path);
+        $this->createCloudFrontInvalidation(rtrim($path, '/') . '/*');
     }
 
     /**
      * @inheritDoc
      */
-    public function write(string $path, string $body, Config $config): void
+    public function write(string $path, string $contents, Config $config): void
     {
         $existed = $this->hasCloudFrontConfig() && $this->fileExists($path);
-        parent::write($path, $body, $config);
+        parent::write($path, $contents, $config);
         if ($existed) {
             $this->createCloudFrontInvalidation($path);
         }
@@ -140,11 +154,11 @@ class AwsS3CloudFrontAdapter extends AwsS3V3Adapter
     protected function applyCloudFrontPathPrefix(string $path): string
     {
         $path = '/' . ltrim($path, '/');
-        if (empty($this->options['cloudFrontPathPrefix'])) {
+        if (empty($this->cloudfrontPathPrefix)) {
             return $path;
         }
 
-        return '/' . trim($this->options['cloudFrontPathPrefix'], '/') . $path;
+        return '/' . trim($this->cloudfrontPathPrefix, '/') . $path;
     }
 
     /**
@@ -155,13 +169,13 @@ class AwsS3CloudFrontAdapter extends AwsS3V3Adapter
      */
     protected function createCloudFrontInvalidation(string $path): void
     {
-        if ($this->cloudfrontClient === null || empty($this->options['distributionId'])) {
+        if ($this->cloudfrontClient === null || empty($this->distributionId)) {
             return;
         }
 
         try {
             $this->cloudfrontClient->createInvalidation([
-                'DistributionId' => $this->options['distributionId'],
+                'DistributionId' => $this->distributionId,
                 'InvalidationBatch' => [
                     'CallerReference' => uniqid($path),
                     'Paths' => [
