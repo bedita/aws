@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * BEdita, API-first content management framework
  * Copyright 2022 Atlas Srl, Chialab Srl
@@ -24,14 +26,14 @@ use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
 use Lcobucci\Clock\FrozenClock;
-use Lcobucci\JWT\Parser;
-use Lcobucci\JWT\Parsing\Decoder;
+use Lcobucci\JWT\Encoding\JoseEncoder;
+use Lcobucci\JWT\Signer\Ecdsa\MultibyteStringConverter;
 use Lcobucci\JWT\Signer\Ecdsa\Sha256;
 use Lcobucci\JWT\Signer\Key;
+use Lcobucci\JWT\Token\Parser as TokenParser;
+use Lcobucci\JWT\Validation\Constraint\LooseValidAt;
 use Lcobucci\JWT\Validation\Constraint\SignedWith;
-use Lcobucci\JWT\Validation\Constraint\ValidAt;
 use Lcobucci\JWT\Validation\Validator;
-use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**
@@ -83,10 +85,9 @@ class AlbAuthenticator extends TokenAuthenticator
      *
      * @link https://jwt.io/
      * @param \Psr\Http\Message\ServerRequestInterface $request The request that contains login information.
-     * @param \Psr\Http\Message\ResponseInterface $response Unused response object.
      * @return \Authentication\Authenticator\ResultInterface
      */
-    public function authenticate(ServerRequestInterface $request, ResponseInterface $response): ResultInterface
+    public function authenticate(ServerRequestInterface $request): ResultInterface
     {
         $token = $this->getTokenFromHeader($request, $this->getConfigOrFail('header'));
         if ($token === null) {
@@ -184,7 +185,8 @@ class AlbAuthenticator extends TokenAuthenticator
      */
     protected function decodeToken(string $token): ?array
     {
-        $parser = new Parser(new Decoder());
+        $parser = new TokenParser(new JoseEncoder());
+        /** @var \Lcobucci\JWT\UnencryptedToken $jwt */
         $jwt = $parser->parse($token);
 
         $kid = $jwt->headers()->get('kid');
@@ -194,8 +196,8 @@ class AlbAuthenticator extends TokenAuthenticator
 
         (new Validator())->assert(
             $jwt,
-            new SignedWith(new Sha256(), $this->getKey($kid)),
-            new ValidAt(new FrozenClock(FrozenTime::now()))
+            new SignedWith(new Sha256(new MultibyteStringConverter()), $this->getKey($kid)),
+            new LooseValidAt(new FrozenClock(FrozenTime::now()))
         );
 
         return $jwt->claims()->all();

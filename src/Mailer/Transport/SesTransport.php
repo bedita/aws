@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * BEdita, API-first content management framework
  * Copyright 2022 Atlas Srl, Chialab Srl
@@ -16,7 +18,7 @@ namespace BEdita\AWS\Mailer\Transport;
 use Aws\Ses\SesClient;
 use BEdita\AWS\AwsConfigTrait;
 use Cake\Mailer\AbstractTransport;
-use Cake\Mailer\Email;
+use Cake\Mailer\Message;
 
 /**
  * Send emails using Amazon SES.
@@ -76,15 +78,12 @@ class SesTransport extends AbstractTransport
     /**
      * @inheritDoc
      */
-    public function send(Email $email): array
+    public function send(Message $email): array
     {
-        $headers = $email->getHeaders(['from', 'sender', 'replyTo', 'readReceipt', 'returnPath', 'to', 'cc', 'bcc', 'subject']);
-        foreach ($headers as $key => $header) {
-            $headers[$key] = str_replace(str_split(static::EOL), '', $header);
-        }
-        $headers = $this->_headersToString($headers, static::EOL);
+        $headerList = ['from', 'sender', 'replyTo', 'readReceipt', 'returnPath', 'to', 'cc', 'bcc', 'subject'];
+        $headers = $email->getHeadersString($headerList, static::EOL);
 
-        $message = implode(static::EOL, (array)$email->message());
+        $message = $email->getBodyString(static::EOL);
 
         $this->getClient()->sendRawEmail([
             'RawMessage' => [

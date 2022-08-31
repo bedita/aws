@@ -1,27 +1,27 @@
 {
     "name": "bedita/aws",
-    "description": "BEdita 4 plugin for applications that use AWS resources such as S3",
+    "description": "BEdita 5 plugin for applications that use AWS resources such as S3",
     "type": "cakephp-plugin",
     "require": {
-        "php": ">=7.2.0",
+        "php": "^7.4 || ^8.0",
         "ext-openssl": "*",
-        "aws/aws-sdk-php": "^3.0.0",
-        "bedita/core": "*",
-        "cakephp/cakephp": "^3.6.0",
-        "lcobucci/jwt": "^3.4",
-        "league/flysystem": "^1.0.53",
-        "league/flysystem-aws-s3-v3": "^1.0.0",
+        "aws/aws-sdk-php": "^3.222",
+        "bedita/core": "^5.0.0",
+        "cakephp/cakephp": "^4.4.1",
+        "lcobucci/jwt": "^4.1.5",
+        "league/flysystem": "^2.4.3",
+        "league/flysystem-aws-s3-v3": "^2.4.3",
         "guzzlehttp/guzzle": "^7.4"
     },
     "require-dev": {
-        "cakephp/cakephp-codesniffer": "^3.0",
-        "cakephp/plugin-installer": "^1.0",
-        "phpunit/phpunit": "^5.7.14|^6.0",
-        "phpstan/phpstan": "^1.5",
-        "cakephp/authentication": "^1.0"
+        "cakephp/cakephp-codesniffer": "~4.5.1",
+        "phpunit/phpunit": "^9.5",
+        "dms/phpunit-arraysubset-asserts": "^0.4",
+        "phpstan/phpstan": "^1.7.1",
+        "cakephp/authentication": "^2.9"
     },
     "suggest": {
-        "cakephp/authentication": "^1.0"
+        "cakephp/authentication": "^2.9"
     },
     "autoload": {
         "psr-4": {
@@ -41,7 +41,8 @@
     },
     "config": {
         "allow-plugins": {
-            "cakephp/plugin-installer": true
+            "cakephp/plugin-installer": true,
+            "dealerdirect/phpcodesniffer-composer-installer": true
         }
     }
 }

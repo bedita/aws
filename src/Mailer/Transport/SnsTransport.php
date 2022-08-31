@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * BEdita, API-first content management framework
  * Copyright 2022 Atlas Srl, Chialab Srl
@@ -16,7 +18,7 @@ namespace BEdita\AWS\Mailer\Transport;
 use Aws\Sns\SnsClient;
 use BEdita\AWS\AwsConfigTrait;
 use Cake\Mailer\AbstractTransport;
-use Cake\Mailer\Email;
+use Cake\Mailer\Message;
 
 /**
  * Send SMS using Amazon SNS.
@@ -70,10 +72,10 @@ class SnsTransport extends AbstractTransport
     /**
      * Send mail
      *
-     * @param \Cake\Mailer\Email $email Email instance.
+     * @param \Cake\Mailer\Message $email Email message.
      * @return array
      */
-    public function send(Email $email): array
+    public function send(Message $email): array
     {
         $from = $email->getFrom();
         $to = $email->getTo();
@@ -81,7 +83,7 @@ class SnsTransport extends AbstractTransport
         $phoneNumber = reset($to);
         $senderId = trim(reset($from));
         /** @var string $message */
-        $message = $email->message(Email::MESSAGE_TEXT);
+        $message = $email->getBodyText();
         $message = trim($message);
         $smsType = $this->getConfig('smsType');
 

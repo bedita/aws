@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * BEdita, API-first content management framework
  * Copyright 2022 Atlas Srl, Chialab Srl
@@ -17,13 +19,13 @@ use Aws\CloudFront\CloudFrontClient;
 use Aws\CloudFront\Exception\CloudFrontException;
 use Aws\S3\S3ClientInterface;
 use DomainException;
-use League\Flysystem\AwsS3v3\AwsS3Adapter;
+use League\Flysystem\AwsS3V3\AwsS3V3Adapter;
 use League\Flysystem\Config;
 
 /**
  * AWS S3 adapter that creates a CloudFront invalidation every time an object is updated or deleted.
  */
-class AwsS3CloudFrontAdapter extends AwsS3Adapter
+class AwsS3CloudFrontAdapter extends AwsS3V3Adapter
 {
     /**
      * CloudFront Client instance.
@@ -42,9 +44,9 @@ class AwsS3CloudFrontAdapter extends AwsS3Adapter
      * @param bool $streamReads Whether reads should be streamed.
      * @param \Aws\CloudFront\CloudFrontClient|null $cloudfrontClient CloudFront client instance, or `null`.
      */
-    public function __construct(S3ClientInterface $client, $bucket, $prefix = '', array $options = [], $streamReads = true, CloudFrontClient $cloudfrontClient = null)
+    public function __construct(S3ClientInterface $client, $bucket, $prefix = '', array $options = [], $streamReads = true, ?CloudFrontClient $cloudfrontClient = null)
     {
-        parent::__construct($client, $bucket, $prefix, $options, $streamReads);
+        parent::__construct($client, $bucket, $prefix, null, null, $options, $streamReads);
 
         if (!empty($options['distributionId']) && $cloudfrontClient === null) {
             throw new DomainException('When `distributionId` is set, a CloudFront client instance is required');
@@ -67,10 +69,12 @@ class AwsS3CloudFrontAdapter extends AwsS3Adapter
      *
      * @return string|null
      */
-    public function getDistributionId(): ?string
-    {
-        return $this->options['distributionId'] ?? null;
-    }
+    // TODO: `options` attribute is now private in base class,
+    // and this method doesn't work anymore - see if there's a different way to obtain this ID.
+    // public function getDistributionId(): ?string
+    // {
+    //     return $this->options['distributionId'] ?? null;
+    // }
 
     /**
      * Check whether CloudFront configuration is set.
@@ -79,62 +83,52 @@ class AwsS3CloudFrontAdapter extends AwsS3Adapter
      */
     public function hasCloudFrontConfig(): bool
     {
-        return !empty($this->options['distributionId']) && $this->cloudfrontClient !== null;
+        return $this->cloudfrontClient !== null;
     }
 
     /**
      * @inheritDoc
      */
-    public function copy($path, $newpath)
+    public function copy(string $path, string $newpath, Config $config): void
     {
-        $existed = $this->hasCloudFrontConfig() && $this->has($newpath);
-        $result = parent::copy($path, $newpath);
-        if ($result !== false && $existed) {
+        $existed = $this->hasCloudFrontConfig() && $this->fileExists($newpath);
+        parent::copy($path, $newpath, $config);
+        if ($existed) {
             $this->createCloudFrontInvalidation($newpath);
         }
-
-        return $result;
     }
 
     /**
      * @inheritDoc
      */
-    public function delete($path)
+    public function delete(string $path): void
     {
-        $existed = $this->hasCloudFrontConfig() && $this->has($path);
-        $result = parent::delete($path);
-        if ($result !== false && $existed) {
+        $existed = $this->hasCloudFrontConfig() && $this->fileExists($path);
+        parent::delete($path);
+        if ($existed) {
             $this->createCloudFrontInvalidation($path);
         }
-
-        return $result;
     }
 
     /**
      * @inheritDoc
      */
-    public function deleteDir($dirname)
+    public function deleteDirectory(string $dirname): void
     {
-        $result = parent::deleteDir($dirname);
-        if ($result !== false) {
-            $this->createCloudFrontInvalidation(rtrim($dirname, '/') . '/*');
-        }
-
-        return $result;
+        parent::deleteDirectory($dirname);
+        $this->createCloudFrontInvalidation(rtrim($dirname, '/') . '/*');
     }
 
     /**
      * @inheritDoc
      */
-    protected function upload($path, $body, Config $config)
+    public function write(string $path, string $body, Config $config): void
     {
-        $existed = $this->hasCloudFrontConfig() && $this->has($path);
-        $result = parent::upload($path, $body, $config);
-        if ($result !== false && $existed) {
+        $existed = $this->hasCloudFrontConfig() && $this->fileExists($path);
+        parent::write($path, $body, $config);
+        if ($existed) {
             $this->createCloudFrontInvalidation($path);
         }
-
-        return $result;
     }
 
     /**

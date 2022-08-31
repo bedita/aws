@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * BEdita, API-first content management framework
  * Copyright 2022 Atlas Srl, Chialab Srl
@@ -19,20 +21,23 @@ use Authentication\Authenticator\ResultInterface;
 use Authentication\Identifier\CallbackIdentifier;
 use Authentication\Identifier\IdentifierInterface;
 use BEdita\AWS\Authenticator\AlbAuthenticator;
-use Cake\Http\Response as ServerResponse;
 use Cake\Http\ServerRequest;
 use Cake\I18n\FrozenTime;
 use Cake\Utility\Text;
+use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Handler\MockHandler;
+use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
-use Lcobucci\JWT\Builder;
+use Lcobucci\JWT\Encoding\ChainedFormatter;
+use Lcobucci\JWT\Encoding\JoseEncoder;
+use Lcobucci\JWT\Signer\Ecdsa\MultibyteStringConverter;
 use Lcobucci\JWT\Signer\Ecdsa\Sha256;
 use Lcobucci\JWT\Signer\Key\InMemory;
 use Lcobucci\JWT\Signer\None;
+use Lcobucci\JWT\Token\Builder;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -42,6 +47,8 @@ use PHPUnit\Framework\TestCase;
  */
 class AlbAuthenticatorTest extends TestCase
 {
+    use ArraySubsetAsserts;
+
     /**
      * Key ID.
      *
@@ -123,18 +130,17 @@ class AlbAuthenticatorTest extends TestCase
             ['region' => 'eu-south-1', 'guzzleClient' => ['handler' => $this->handler]]
         );
 
-        $token = (new Builder())
+        $token = (new Builder(new JoseEncoder(), ChainedFormatter::default()))
             ->issuedAt(FrozenTime::now())
             ->canOnlyBeUsedAfter(FrozenTime::now())
             ->expiresAt(FrozenTime::now()->addMinute())
             ->withHeader('kid', $this->keyId)
             ->relatedTo('gustavo@example.com')
-            ->getToken(new Sha256(), $this->privateKey)
+            ->getToken(new Sha256(new MultibyteStringConverter()), $this->privateKey)
             ->toString();
 
         $result = $authenticator->authenticate(
-            new ServerRequest(['environment' => ['HTTP_X_AMZN_OIDC_DATA' => $token]]),
-            new ServerResponse()
+            new ServerRequest(['environment' => ['HTTP_X_AMZN_OIDC_DATA' => $token]])
         );
 
         static::assertSame(ResultInterface::SUCCESS, $result->getStatus());
@@ -169,8 +175,7 @@ class AlbAuthenticatorTest extends TestCase
         );
 
         $result = $authenticator->authenticate(
-            new ServerRequest(['environment' => []]),
-            new ServerResponse()
+            new ServerRequest(['environment' => []])
         );
 
         static::assertSame(ResultInterface::FAILURE_CREDENTIALS_MISSING, $result->getStatus());
@@ -199,8 +204,7 @@ class AlbAuthenticatorTest extends TestCase
         $token = 'NOT A JWT';
 
         $result = $authenticator->authenticate(
-            new ServerRequest(['environment' => ['HTTP_X_AMZN_OIDC_DATA' => $token]]),
-            new ServerResponse()
+            new ServerRequest(['environment' => ['HTTP_X_AMZN_OIDC_DATA' => $token]])
         );
 
         static::assertSame(ResultInterface::FAILURE_CREDENTIALS_INVALID, $result->getStatus());
@@ -228,17 +232,16 @@ class AlbAuthenticatorTest extends TestCase
             ['region' => 'eu-south-1', 'guzzleClient' => ['handler' => $this->handler]]
         );
 
-        $token = (new Builder())
+        $token = (new Builder(new JoseEncoder(), ChainedFormatter::default()))
             ->issuedAt(FrozenTime::now()->subDay())
             ->canOnlyBeUsedAfter(FrozenTime::now()->subDay())
             ->expiresAt(FrozenTime::now()->subDay()->addMinute())
             ->relatedTo('gustavo@example.com')
-            ->getToken(new Sha256(), $this->privateKey)
+            ->getToken(new Sha256(new MultibyteStringConverter()), $this->privateKey)
             ->toString();
 
         $result = $authenticator->authenticate(
-            new ServerRequest(['environment' => ['HTTP_X_AMZN_OIDC_DATA' => $token]]),
-            new ServerResponse()
+            new ServerRequest(['environment' => ['HTTP_X_AMZN_OIDC_DATA' => $token]])
         );
 
         static::assertSame(ResultInterface::FAILURE_CREDENTIALS_INVALID, $result->getStatus());
@@ -270,18 +273,17 @@ class AlbAuthenticatorTest extends TestCase
             ['region' => 'eu-south-1', 'guzzleClient' => ['handler' => $handler]]
         );
 
-        $token = (new Builder())
+        $token = (new Builder(new JoseEncoder(), ChainedFormatter::default()))
             ->issuedAt(FrozenTime::now()->subDay())
             ->canOnlyBeUsedAfter(FrozenTime::now()->subDay())
             ->expiresAt(FrozenTime::now()->subDay()->addMinute())
             ->withHeader('kid', $this->keyId)
             ->relatedTo('gustavo@example.com')
-            ->getToken(new Sha256(), $this->privateKey)
+            ->getToken(new Sha256(new MultibyteStringConverter()), $this->privateKey)
             ->toString();
 
         $result = $authenticator->authenticate(
-            new ServerRequest(['environment' => ['HTTP_X_AMZN_OIDC_DATA' => $token]]),
-            new ServerResponse()
+            new ServerRequest(['environment' => ['HTTP_X_AMZN_OIDC_DATA' => $token]])
         );
 
         static::assertSame(ResultInterface::FAILURE_CREDENTIALS_INVALID, $result->getStatus());
@@ -314,18 +316,17 @@ class AlbAuthenticatorTest extends TestCase
             ['region' => 'eu-south-1', 'guzzleClient' => ['handler' => $this->handler]]
         );
 
-        $token = (new Builder())
+        $token = (new Builder(new JoseEncoder(), ChainedFormatter::default()))
             ->issuedAt(FrozenTime::now()->subDay())
             ->canOnlyBeUsedAfter(FrozenTime::now()->subDay())
             ->expiresAt(FrozenTime::now()->subDay()->addMinute())
             ->withHeader('kid', $this->keyId)
             ->relatedTo('gustavo@example.com')
-            ->getToken(new Sha256(), $this->privateKey)
+            ->getToken(new Sha256(new MultibyteStringConverter()), $this->privateKey)
             ->toString();
 
         $result = $authenticator->authenticate(
-            new ServerRequest(['environment' => ['HTTP_X_AMZN_OIDC_DATA' => $token]]),
-            new ServerResponse()
+            new ServerRequest(['environment' => ['HTTP_X_AMZN_OIDC_DATA' => $token]])
         );
 
         static::assertSame(ResultInterface::FAILURE_CREDENTIALS_INVALID, $result->getStatus());
@@ -369,18 +370,17 @@ class AlbAuthenticatorTest extends TestCase
         openssl_free_key($key);
         $privateKey = InMemory::plainText($privateKey);
 
-        $token = (new Builder())
+        $token = (new Builder(new JoseEncoder(), ChainedFormatter::default()))
             ->issuedAt(FrozenTime::now())
             ->canOnlyBeUsedAfter(FrozenTime::now())
             ->expiresAt(FrozenTime::now()->addMinute())
             ->withHeader('kid', $this->keyId)
             ->relatedTo('gustavo@example.com')
-            ->getToken(new Sha256(), $privateKey)
+            ->getToken(new Sha256(new MultibyteStringConverter()), $privateKey)
             ->toString();
 
         $result = $authenticator->authenticate(
-            new ServerRequest(['environment' => ['HTTP_X_AMZN_OIDC_DATA' => $token]]),
-            new ServerResponse()
+            new ServerRequest(['environment' => ['HTTP_X_AMZN_OIDC_DATA' => $token]])
         );
 
         static::assertSame(ResultInterface::FAILURE_CREDENTIALS_INVALID, $result->getStatus());
@@ -411,18 +411,17 @@ class AlbAuthenticatorTest extends TestCase
             ['region' => 'eu-south-1', 'guzzleClient' => ['handler' => $this->handler]]
         );
 
-        $token = (new Builder())
+        $token = (new Builder(new JoseEncoder(), ChainedFormatter::default()))
             ->issuedAt(FrozenTime::now())
             ->canOnlyBeUsedAfter(FrozenTime::now())
             ->expiresAt(FrozenTime::now()->addMinute())
             ->withHeader('kid', $this->keyId)
             ->relatedTo('gustavo@example.com')
-            ->getToken(new None(), InMemory::plainText(''))
+            ->getToken(new None(), InMemory::plainText('key'))
             ->toString();
 
         $result = $authenticator->authenticate(
-            new ServerRequest(['environment' => ['HTTP_X_AMZN_OIDC_DATA' => $token]]),
-            new ServerResponse()
+            new ServerRequest(['environment' => ['HTTP_X_AMZN_OIDC_DATA' => $token]])
         );
 
         static::assertSame(ResultInterface::FAILURE_CREDENTIALS_INVALID, $result->getStatus());
@@ -453,17 +452,16 @@ class AlbAuthenticatorTest extends TestCase
             ['region' => 'eu-south-1', 'guzzleClient' => ['handler' => $this->handler]]
         );
 
-        $token = (new Builder())
+        $token = (new Builder(new JoseEncoder(), ChainedFormatter::default()))
             ->issuedAt(FrozenTime::now())
             ->canOnlyBeUsedAfter(FrozenTime::now())
             ->expiresAt(FrozenTime::now()->addMinute())
             ->withHeader('kid', $this->keyId)
-            ->getToken(new Sha256(), $this->privateKey)
+            ->getToken(new Sha256(new MultibyteStringConverter()), $this->privateKey)
             ->toString();
 
         $result = $authenticator->authenticate(
-            new ServerRequest(['environment' => ['HTTP_X_AMZN_OIDC_DATA' => $token]]),
-            new ServerResponse()
+            new ServerRequest(['environment' => ['HTTP_X_AMZN_OIDC_DATA' => $token]])
         );
 
         static::assertSame(ResultInterface::FAILURE_CREDENTIALS_MISSING, $result->getStatus());
@@ -501,18 +499,17 @@ class AlbAuthenticatorTest extends TestCase
             ]
         );
 
-        $token = (new Builder())
+        $token = (new Builder(new JoseEncoder(), ChainedFormatter::default()))
             ->issuedAt(FrozenTime::now())
             ->canOnlyBeUsedAfter(FrozenTime::now())
             ->expiresAt(FrozenTime::now()->addMinute())
             ->withHeader('kid', $this->keyId)
             ->relatedTo('gustavo@example.com')
-            ->getToken(new Sha256(), $this->privateKey)
+            ->getToken(new Sha256(new MultibyteStringConverter()), $this->privateKey)
             ->toString();
 
         $result = $authenticator->authenticate(
-            new ServerRequest(['environment' => ['HTTP_X_AMZN_OIDC_DATA' => $token]]),
-            new ServerResponse()
+            new ServerRequest(['environment' => ['HTTP_X_AMZN_OIDC_DATA' => $token]])
         );
 
         static::assertSame(ResultInterface::SUCCESS, $result->getStatus());
@@ -556,18 +553,17 @@ class AlbAuthenticatorTest extends TestCase
             ]
         );
 
-        $token = (new Builder())
+        $token = (new Builder(new JoseEncoder(), ChainedFormatter::default()))
             ->issuedAt(FrozenTime::now())
             ->canOnlyBeUsedAfter(FrozenTime::now())
             ->expiresAt(FrozenTime::now()->addMinute())
             ->withHeader('kid', $this->keyId)
             ->relatedTo('gustavo@example.com')
-            ->getToken(new Sha256(), $this->privateKey)
+            ->getToken(new Sha256(new MultibyteStringConverter()), $this->privateKey)
             ->toString();
 
         $result = $authenticator->authenticate(
-            new ServerRequest(['environment' => ['HTTP_X_AMZN_OIDC_DATA' => $token]]),
-            new ServerResponse()
+            new ServerRequest(['environment' => ['HTTP_X_AMZN_OIDC_DATA' => $token]])
         );
 
         static::assertSame(ResultInterface::FAILURE_IDENTITY_NOT_FOUND, $result->getStatus());

@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * BEdita, API-first content management framework
  * Copyright 2022 Atlas Srl, Chialab Srl
@@ -17,6 +19,7 @@ use BEdita\AWS\Plugin;
 use BEdita\Core\Filesystem\FilesystemRegistry;
 use BEdita\Core\Mailer\Email;
 use Cake\Http\BaseApplication;
+use Cake\Http\MiddlewareQueue;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -47,13 +50,12 @@ class PluginTest extends TestCase
      * Test {@see Plugin::bootstrap()} method.
      *
      * @return void
-     *
      * @covers ::bootstrap()
      */
     public function testBootstrap(): void
     {
         $app = new class (CONFIG) extends BaseApplication {
-            public function middleware($middleware)
+            public function middleware(MiddlewareQueue $middleware): MiddlewareQueue
             {
                 return $middleware;
             }

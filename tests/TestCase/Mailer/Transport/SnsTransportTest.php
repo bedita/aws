@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * BEdita, API-first content management framework
  * Copyright 2022 Atlas Srl, Chialab Srl
@@ -17,7 +19,7 @@ use Aws\Command;
 use Aws\Result;
 use Aws\Sns\SnsClient;
 use BEdita\AWS\Mailer\Transport\SnsTransport;
-use Cake\Mailer\Email;
+use Cake\Mailer\Message;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -31,7 +33,6 @@ class SnsTransportTest extends TestCase
      * Test {@see SnsTransport} constructor and {@see SnsTransport::getClient()} methods.
      *
      * @return void
-     *
      * @covers ::__construct()
      * @covers ::getClient()
      */
@@ -60,7 +61,7 @@ class SnsTransportTest extends TestCase
                 'secret' => 'example',
             ],
         ];
-        static::assertAttributeSame($expected, '_config', $snsTransport);
+        static::assertSame($expected, $snsTransport->getConfig());
 
         $client = $snsTransport->getClient();
         static::assertSame('eu-south-1', $client->getRegion());
@@ -90,8 +91,11 @@ class SnsTransportTest extends TestCase
                     'MessageAttributes' => [],
                 ],
                 [],
-                (new Email())->setEmailPattern('/.*/')->setFrom(['' => '_'])->setTo(['+1-202-555-0118']),
-                "  Hello, world!  \n \r  ",
+                (new Message())
+                    ->setEmailPattern('/.*/')
+                    ->setFrom(['' => '_'])
+                    ->setTo(['+1-202-555-0118'])
+                    ->setBodyText('Hello, world!'),
             ],
             'with sender' => [
                 ['message' => 'Hello, world!', 'headers' => ''],
@@ -103,8 +107,11 @@ class SnsTransportTest extends TestCase
                     ],
                 ],
                 [],
-                (new Email())->setEmailPattern('/.*/')->setFrom(['' => 'FooBar'])->setTo(['+1-202-555-0118']),
-                "  Hello, world!  \n \r  ",
+                (new Message())
+                    ->setEmailPattern('/.*/')
+                    ->setFrom(['' => 'FooBar'])
+                    ->setTo(['+1-202-555-0118'])
+                    ->setBodyText('Hello, world!'),
             ],
             'with SMS type' => [
                 ['message' => 'Hello, world!', 'headers' => ''],
@@ -116,8 +123,11 @@ class SnsTransportTest extends TestCase
                     ],
                 ],
                 ['smsType' => 'Promotional'],
-                (new Email())->setEmailPattern('/.*/')->setFrom(['' => '_'])->setTo(['+1-202-555-0118']),
-                "  Hello, world!  \n \r  ",
+                (new Message())
+                    ->setEmailPattern('/.*/')
+                    ->setFrom(['' => '_'])
+                    ->setTo(['+1-202-555-0118'])
+                    ->setBodyText('Hello, world!'),
             ],
             'with sender and SMS type' => [
                 ['message' => 'Hello, world!', 'headers' => ''],
@@ -130,8 +140,11 @@ class SnsTransportTest extends TestCase
                     ],
                 ],
                 ['smsType' => 'Transactional'],
-                (new Email())->setEmailPattern('/.*/')->setFrom(['' => 'FooBar'])->setTo(['+1-202-555-0118']),
-                "  Hello, world!  \n \r  ",
+                (new Message())
+                    ->setEmailPattern('/.*/')
+                    ->setFrom(['' => 'FooBar'])
+                    ->setTo(['+1-202-555-0118'])
+                    ->setBodyText('Hello, world!'),
             ],
         ];
     }
@@ -142,14 +155,12 @@ class SnsTransportTest extends TestCase
      * @param array $expected Expected result.
      * @param array $expectedPayload Expected payload for `sns:Publish` action.
      * @param array $config Client configuration.
-     * @param \Cake\Mailer\Email $email Email to send.
-     * @param string $content Message contents.
+     * @param \Cake\Mailer\Message $email Email to send.
      * @return void
-     *
      * @dataProvider sendProvider()
      * @covers ::send()
      */
-    public function testSend(array $expected, array $expectedPayload, array $config, Email $email, string $content): void
+    public function testSend(array $expected, array $expectedPayload, array $config, Message $email): void
     {
         $invocations = 0;
         $handler = function (Command $command) use (&$invocations, $expectedPayload): Result {
@@ -172,7 +183,7 @@ class SnsTransportTest extends TestCase
         ];
         $transport = new SnsTransport($config);
 
-        $actual = $email->setTransport($transport)->send($content);
+        $actual = $transport->send($email);
 
         static::assertSame($expected, $actual);
         static::assertSame(1, $invocations);
