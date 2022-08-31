@@ -73,7 +73,7 @@ class AwsS3CloudFrontAdapterTest extends TestCase
     }
 
     /**
-     * Test {@see AwsS3CloudFrontAdapter} constructor, {@see AwsS3CloudFrontAdapter::getDistributionId()},
+     * Test {@see AwsS3CloudFrontAdapter} constructor,
      * {@see AwsS3CloudFrontAdapter::getCloudFrontClient()} and {@see AwsS3CloudFrontAdapter::hasCloudFrontConfig()}
      * methods.
      *
@@ -88,6 +88,7 @@ class AwsS3CloudFrontAdapterTest extends TestCase
         $adapter = new AwsS3CloudFrontAdapter($s3Client, 'example-bucket', '', [], true, null);
 
         static::assertNull($adapter->getCloudFrontClient());
+        // `getDistributionId()` method removed for now
         // static::assertNull($adapter->getDistributionId());
         static::assertFalse($adapter->hasCloudFrontConfig());
     }
@@ -107,7 +108,7 @@ class AwsS3CloudFrontAdapterTest extends TestCase
     }
 
     /**
-     * Test {@see AwsS3CloudFrontAdapter} constructor, {@see AwsS3CloudFrontAdapter::getDistributionId()},
+     * Test {@see AwsS3CloudFrontAdapter} constructor,
      * {@see AwsS3CloudFrontAdapter::getCloudFrontClient()} and {@see AwsS3CloudFrontAdapter::hasCloudFrontConfig()}
      * methods with a distribution ID.
      *
@@ -124,6 +125,7 @@ class AwsS3CloudFrontAdapterTest extends TestCase
         $adapter = new AwsS3CloudFrontAdapter($s3Client, 'example-bucket', '', compact('distributionId'), true, $cloudFrontClient);
 
         static::assertSame($cloudFrontClient, $adapter->getCloudFrontClient());
+        // `getDistributionId()` method removed for now
         //static::assertSame($distributionId, $adapter->getDistributionId());
         static::assertTrue($adapter->hasCloudFrontConfig());
     }
@@ -222,6 +224,7 @@ class AwsS3CloudFrontAdapterTest extends TestCase
         $adapter = new AwsS3CloudFrontAdapter($s3Client, 'example-bucket', '', ['distributionId' => 'E2EXAMPLE'], true, $cloudFrontClient);
 
         $adapter->copy('old.jpg', 'new.jpg', new Config());
+        // $invocations array now differs - is this a problem/bug?
         // static::assertSame(['HeadObject', 'ListObjects', 'GetObjectAcl', 'HeadObject', 'CopyObject'], $invocations);
         static::assertSame(['HeadObject', 'GetObjectAcl', 'HeadObject', 'CopyObject'], $invocations);
     }
@@ -285,6 +288,7 @@ class AwsS3CloudFrontAdapterTest extends TestCase
         $adapter = new AwsS3CloudFrontAdapter($s3Client, 'example-bucket', '', ['distributionId' => 'E2EXAMPLE'], true, $cloudFrontClient);
 
         $adapter->copy('old.jpg', 'new.jpg', new Config());
+        // $invocations array now differs - is this a problem/bug?
         // static::assertSame(['HeadObject', 'GetObjectAcl', 'HeadObject', 'CopyObject', 'CreateInvalidation'], $invocations);
         static::assertSame(['HeadObject', 'GetObjectAcl', 'HeadObject', 'CopyObject'], $invocations);
     }
@@ -326,6 +330,7 @@ class AwsS3CloudFrontAdapterTest extends TestCase
         $adapter = new AwsS3CloudFrontAdapter($s3Client, 'example-bucket', 'foo/', [], true, null);
 
         $adapter->delete('file.txt');
+        // $invocations array now differs - is this a problem/bug?
         // static::assertSame(['DeleteObject', 'HeadObject', 'ListObjects'], $invocations);
         static::assertSame(['DeleteObject'], $invocations);
     }
@@ -373,6 +378,7 @@ class AwsS3CloudFrontAdapterTest extends TestCase
         $adapter = new AwsS3CloudFrontAdapter($s3Client, 'example-bucket', 'foo/', ['distributionId' => 'E2EXAMPLE', 'cloudFrontPathPrefix' => 'bar/'], true, $cloudFrontClient);
 
         $adapter->delete('file.txt');
+        // $invocations array now differs - is this a problem/bug?
         // static::assertSame(['HeadObject', 'ListObjects', 'DeleteObject', 'HeadObject', 'ListObjects'], $invocations);
         static::assertSame(['HeadObject', 'DeleteObject'], $invocations);
     }
@@ -439,6 +445,7 @@ class AwsS3CloudFrontAdapterTest extends TestCase
         $adapter = new AwsS3CloudFrontAdapter($s3Client, 'example-bucket', 'foo/', ['distributionId' => 'E2EXAMPLE', 'cloudFrontPathPrefix' => 'bar/'], true, $cloudFrontClient);
 
         $adapter->delete('file.txt');
+        // $invocations array now differs - is this a problem/bug?
         // static::assertSame(['HeadObject', 'DeleteObject', 'HeadObject', 'ListObjects', 'CreateInvalidation'], $invocations);
         static::assertSame(['HeadObject', 'DeleteObject'], $invocations);
     }
@@ -525,6 +532,7 @@ class AwsS3CloudFrontAdapterTest extends TestCase
         $adapter = new AwsS3CloudFrontAdapter($s3Client, 'example-bucket', 'foo/', ['distributionId' => 'E2EXAMPLE', 'cloudFrontPathPrefix' => 'bar/'], true, $cloudFrontClient);
 
         $adapter->deleteDirectory('my/sub/path');
+        // $invocations array now differs - is this a problem/bug?
         // static::assertSame(['ListObjects', 'DeleteObjects', 'CreateInvalidation'], $invocations);
         static::assertSame(['ListObjects', 'DeleteObjects'], $invocations);
     }
@@ -602,6 +610,7 @@ class AwsS3CloudFrontAdapterTest extends TestCase
         $adapter = new AwsS3CloudFrontAdapter($s3Client, 'example-bucket', 'foo/', ['distributionId' => 'E2EXAMPLE', 'cloudFrontPathPrefix' => 'bar/'], true, $cloudFrontClient);
 
         $adapter->write('file.txt', 'data', new Config());
+        // $invocations array now differs - is this a problem/bug?
         // static::assertSame(['HeadObject', 'ListObjects', 'PutObject'], $invocations);
         static::assertSame(['HeadObject', 'PutObject'], $invocations);
     }
@@ -661,6 +670,7 @@ class AwsS3CloudFrontAdapterTest extends TestCase
         $adapter = new AwsS3CloudFrontAdapter($s3Client, 'example-bucket', 'foo/', ['distributionId' => 'E2EXAMPLE', 'cloudFrontPathPrefix' => 'bar/'], true, $cloudFrontClient);
 
         $adapter->write('file.txt', 'data', new Config());
+        // $invocations array now differs - is this a problem/bug?
         // static::assertSame(['HeadObject', 'PutObject', 'CreateInvalidation'], $invocations);
         static::assertSame(['HeadObject', 'PutObject'], $invocations);
     }

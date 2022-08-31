@@ -69,6 +69,8 @@ class AwsS3CloudFrontAdapter extends AwsS3V3Adapter
      *
      * @return string|null
      */
+    // TODO: `options` attribute is now private in base class,
+    // and this method doesn't work anymore - see if there's a different way to obtain this ID.
     // public function getDistributionId(): ?string
     // {
     //     return $this->options['distributionId'] ?? null;

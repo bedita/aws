@@ -268,6 +268,7 @@ class S3AdapterTest extends TestCase
         /** @var \BEdita\AWS\Filesystem\Adapter\AwsS3CloudFrontAdapter $inner */
         $inner = $adapter->getInnerAdapter();
         static::assertInstanceOf(AwsS3CloudFrontAdapter::class, $inner);
+        // `getDistributionId()` method removed for now
         // static::assertNull($inner->getDistributionId());
     }
 
@@ -295,6 +296,7 @@ class S3AdapterTest extends TestCase
         /** @var \BEdita\AWS\Filesystem\Adapter\AwsS3CloudFrontAdapter $inner */
         $inner = $adapter->getInnerAdapter();
         static::assertInstanceOf(AwsS3CloudFrontAdapter::class, $inner);
+        // `getDistributionId()` method removed for now
         // static::assertSame('E2EXAMPLE', $inner->getDistributionId());
     }
 
