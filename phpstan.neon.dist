@@ -4,5 +4,6 @@ parameters:
   paths:
     - src
     - tests
+  phpVersion: 70400
   level: 8
   checkMissingIterableValueType: false

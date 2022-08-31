@@ -84,8 +84,7 @@ class SesTransportTest extends TestCase
     public function sendProvider(): array
     {
         $messageId = sprintf('<%s@example.com>', Text::uuid());
-        /** @var \Cake\Chronos\ChronosInterface $now */
-        $now = FrozenTime::getTestNow();
+        $now = FrozenTime::now();
 
         return [
             'simple' => [
