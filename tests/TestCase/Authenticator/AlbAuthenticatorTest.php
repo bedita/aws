@@ -93,10 +93,9 @@ class AlbAuthenticatorTest extends TestCase
         openssl_pkey_export($key, $privateKey);
         $keyInfo = openssl_pkey_get_details($key);
         assert($keyInfo !== false);
-        // openssl_free_key is deprecated, no effect on php 8 @see https://www.php.net/manual/en/function.openssl-free-key.php
-        // if (is_resource($key)) {
-        //     openssl_free_key($key);
-        // }
+        if (is_resource($key)) {
+            openssl_free_key($key);
+        }
 
         $this->keyId = Text::uuid();
         $this->privateKey = InMemory::plainText($privateKey);
@@ -368,10 +367,9 @@ class AlbAuthenticatorTest extends TestCase
         ]);
         assert($key !== false);
         openssl_pkey_export($key, $privateKey);
-        // openssl_free_key is deprecated, no effect on php 8 @see https://www.php.net/manual/en/function.openssl-free-key.php
-        // if (is_resource($key)) {
-        //     openssl_free_key($key);
-        // }
+        if (is_resource($key)) {
+            openssl_free_key($key);
+        }
         $privateKey = InMemory::plainText($privateKey);
 
         $token = (new Builder(new JoseEncoder(), ChainedFormatter::default()))

@@ -58,14 +58,8 @@ class AwsS3CloudFrontAdapter extends AwsS3V3Adapter
      * @param bool $streamReads Whether reads should be streamed.
      * @param \Aws\CloudFront\CloudFrontClient|null $cloudfrontClient CloudFront client instance, or `null`.
      */
-    public function __construct(
-        S3ClientInterface $client,
-        string $bucket,
-        string $prefix = '',
-        array $options = [],
-        $streamReads = true,
-        ?CloudFrontClient $cloudfrontClient = null
-    ) {
+    public function __construct(S3ClientInterface $client, string $bucket, string $prefix = '', array $options = [], $streamReads = true, ?CloudFrontClient $cloudfrontClient = null)
+    {
         parent::__construct($client, $bucket, $prefix, null, null, $options, $streamReads);
 
         if (!empty($options['distributionId']) && $cloudfrontClient === null) {
