@@ -3,8 +3,10 @@
     <file>./src</file>
     <file>./tests</file>
 
-    <arg name="colors"/>
-    <arg value="p"/>
+    <arg name="colors" />
+    <arg value="n" />
+    <arg value="p" />
+    <arg name="extensions" value="php"/>
 
     <config name="installed_paths" value="../../cakephp/cakephp-codesniffer"/>
 
