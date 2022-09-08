@@ -1,91 +1,32 @@
-name: 'Run tests'
+name: 'php'
 
 on:
   pull_request:
     paths:
       - '**/*.php'
-      - '.github/workflows/*'
+      - '.github/workflows/php.yml'
+      - 'composer.json'
   push:
     paths:
       - '**/*.php'
-      - '.github/workflows/*'
+      - '.github/workflows/php.yml'
+      - 'composer.json'
 
 jobs:
   cs:
-    name: 'Check coding style'
-    runs-on: 'ubuntu-20.04'
-
-    steps:
-      - name: 'Checkout current revision'
-        uses: 'actions/checkout@v2'
-
-      - name: 'Setup PHP'
-        uses: 'shivammathur/setup-php@v2'
-        with:
-          php-version: '8.1'
-          tools: 'composer'
-          extensions: 'mbstring, intl'
-          coverage: 'none'
-
-      - name: 'Discover Composer cache directory'
-        id: 'cachedir'
-        run: 'echo "::set-output name=path::$(composer global config cache-dir)"'
-
-      - name: 'Share Composer cache across runs'
-        uses: 'actions/cache@v2'
-        with:
-          path: '${{ steps.cachedir.outputs.path }}'
-          key: "composer-${{ github.job }}-${{ hashFiles('**/composer.json') }}"
-          restore-keys: |
-            composer-${{ github.job }}-
-            composer-
-
-      - name: 'Install dependencies with Composer'
-        run: 'composer install --prefer-dist --no-interaction'
-
-      - name: 'Run PHP CodeSniffer'
-        run: 'vendor/bin/phpcs -n'
+    uses: bedita/github-workflows/.github/workflows/php-cs.yml@v1
+    with:
+      php_versions: '["8.1"]'
 
   stan:
-    name: 'Static code analyzer'
-    runs-on: 'ubuntu-20.04'
-    continue-on-error: true
-
-    steps:
-      - name: 'Checkout current revision'
-        uses: 'actions/checkout@v2'
-
-      - name: 'Setup PHP'
-        uses: 'shivammathur/setup-php@v2'
-        with:
-          php-version: '8.1'
-          tools: 'composer'
-          extensions: 'mbstring, intl'
-          coverage: 'none'
-
-      - name: 'Discover Composer cache directory'
-        id: 'cachedir'
-        run: 'echo "::set-output name=path::$(composer global config cache-dir)"'
-
-      - name: 'Share Composer cache across runs'
-        uses: 'actions/cache@v2'
-        with:
-          path: '${{ steps.cachedir.outputs.path }}'
-          key: "composer-${{ github.job }}-${{ hashFiles('**/composer.json') }}"
-          restore-keys: |
-            composer-${{ github.job }}-
-            composer-
-
-      - name: 'Install dependencies with Composer'
-        run: 'composer install --prefer-dist --no-interaction'
-
-      - name: 'Run PHP STAN'
-        run: 'vendor/bin/phpstan analyse --no-progress --error-format=github'
+    uses: bedita/github-workflows/.github/workflows/php-stan.yml@v1
+    with:
+      php_versions: '["8.1"]'
 
   unit:
     name: 'Run unit tests'
     if: "!contains(github.event.commits[0].message, '[skip ci]') && !contains(github.event.commits[0].message, '[ci skip]')"
-    runs-on: 'ubuntu-20.04'
+    runs-on: 'ubuntu-latest'
 
     strategy:
       fail-fast: false
@@ -147,7 +88,7 @@ jobs:
   unit-lowest:
     name: 'Run unit tests with lowest-matching dependencies versions'
     if: "!contains(github.event.commits[0].message, '[skip ci]') && !contains(github.event.commits[0].message, '[ci skip]')"
-    runs-on: 'ubuntu-20.04'
+    runs-on: 'ubuntu-latest'
 
     steps:
       - name: 'Checkout current revision'
