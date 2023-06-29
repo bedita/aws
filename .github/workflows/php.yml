@@ -50,7 +50,7 @@ jobs:
           php-version: '${{ matrix.php }}'
           tools: 'composer'
           extensions: 'mbstring, intl'
-          coverage: 'none' # Using `phpdbg`
+          coverage: 'xdebug'
 
       - name: 'Discover Composer cache directory'
         id: 'cachedir'
@@ -72,7 +72,7 @@ jobs:
         run: 'composer dump-autoload --classmap-authoritative --no-cache'
 
       - name: 'Run PHPUnit'
-        run: 'phpdbg -qrr vendor/bin/phpunit --coverage-clover=clover.xml'
+        run: 'vendor/bin/phpunit --coverage-clover=clover.xml'
 
       - name: 'Export coverage results'
         uses: 'codecov/codecov-action@v1'
