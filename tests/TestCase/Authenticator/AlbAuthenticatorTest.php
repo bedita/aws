@@ -237,6 +237,43 @@ class AlbAuthenticatorTest extends TestCase
     }
 
     /**
+     * Test authentication flow with a token that includes malformed JSON.
+     *
+     * @return void
+     */
+    public function testAuthenticateMalformedJsonInToken(): void
+    {
+        $authenticator = new AlbAuthenticator(
+            new CallbackIdentifier(['callback' => function (): void {
+                static::fail('Unexpected call to identifier');
+            }]),
+            ['region' => 'eu-south-1', 'guzzleClient' => ['handler' => $this->handler]]
+        );
+
+        $encoder = new JoseEncoder();
+        $token = sprintf(
+            '%s.%s',
+            $encoder->base64UrlEncode($encoder->jsonEncode(['typ' => 'JWT', 'alg' => 'ES256', 'kid' => $this->keyId])),
+            $encoder->base64UrlEncode('NOT A JSON'),
+        );
+        $token .= sprintf('.%s', $encoder->base64UrlEncode(Sha256::create()->sign($token, $this->privateKey)));
+
+        $result = $authenticator->authenticate(
+            new ServerRequest(['environment' => ['HTTP_X_AMZN_OIDC_DATA' => $token]])
+        );
+
+        static::assertSame(ResultInterface::FAILURE_CREDENTIALS_INVALID, $result->getStatus());
+        static::assertFalse($result->isValid());
+        $errors = $result->getErrors();
+        static::assertNotEmpty($errors);
+        static::assertSame('Error while decoding from JSON', $errors['message']);
+
+        static::assertCount(0, $this->history);
+
+        static::assertNull($authenticator->getPayload());
+    }
+
+    /**
      * Test authentication flow with a token that has no `kid` header.
      *
      * @return void
