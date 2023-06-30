@@ -81,27 +81,45 @@ class AlbAuthenticatorTest extends TestCase
     {
         parent::setUp();
 
-        $curves = openssl_get_curve_names();
-        assert(is_array($curves));
-
-        $key = openssl_pkey_new([
-            'digest_alg' => OPENSSL_ALGO_SHA256,
-            'private_key_type' => OPENSSL_KEYTYPE_EC,
-            'curve_name' => $curves[array_key_last($curves)],
-        ]);
-        assert($key !== false);
-        openssl_pkey_export($key, $privateKey);
-        $keyInfo = openssl_pkey_get_details($key);
-        assert($keyInfo !== false);
-        if (is_resource($key)) {
-            openssl_free_key($key);
-        }
+        $privateKey = static::runCmd(['openssl', 'ecparam', '-name', 'prime256v1', '-genkey', '-noout']);
+        assert($privateKey !== '');
+        $publicKey = static::runCmd(['openssl', 'ec', '-pubout'], $privateKey);
 
         $this->keyId = Text::uuid();
         $this->privateKey = InMemory::plainText($privateKey);
 
-        $this->handler = HandlerStack::create(new MockHandler([new Response(200, [], $keyInfo['key'])]));
+        $this->handler = HandlerStack::create(new MockHandler([new Response(200, [], $publicKey)]));
         $this->handler->push(Middleware::history($this->history));
+    }
+
+    /**
+     * Run a command.
+     *
+     * @param string[] $cmd Command to run.
+     * @param string $stdinData Data to provide to command stdin.
+     * @return string Data written to stdout.
+     */
+    protected static function runCmd(array $cmd, string $stdinData = ''): string
+    {
+        $proc = proc_open($cmd, [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes);
+        assert($proc !== false);
+
+        [$stdin, $stdout, $stderr] = $pipes;
+        fwrite($stdin, $stdinData);
+        fclose($stdin);
+
+        $stdoutData = stream_get_contents($stdout);
+        fclose($stdout);
+
+        $stderrData = stream_get_contents($stderr);
+        fclose($stderr);
+
+        $exitCode = proc_close($proc);
+        if ($exitCode !== 0) {
+            throw new \RuntimeException(sprintf('Process [%s] exited with %d: %s', implode($cmd), $exitCode, $stderrData));
+        }
+
+        return (string)$stdoutData;
     }
 
     /**
@@ -212,6 +230,43 @@ class AlbAuthenticatorTest extends TestCase
         $errors = $result->getErrors();
         static::assertNotEmpty($errors);
         static::assertSame('The JWT string must have two dots', $errors['message']);
+
+        static::assertCount(0, $this->history);
+
+        static::assertNull($authenticator->getPayload());
+    }
+
+    /**
+     * Test authentication flow with a token that includes malformed JSON.
+     *
+     * @return void
+     */
+    public function testAuthenticateMalformedJsonInToken(): void
+    {
+        $authenticator = new AlbAuthenticator(
+            new CallbackIdentifier(['callback' => function (): void {
+                static::fail('Unexpected call to identifier');
+            }]),
+            ['region' => 'eu-south-1', 'guzzleClient' => ['handler' => $this->handler]]
+        );
+
+        $encoder = new JoseEncoder();
+        $token = sprintf(
+            '%s.%s',
+            $encoder->base64UrlEncode($encoder->jsonEncode(['typ' => 'JWT', 'alg' => 'ES256', 'kid' => $this->keyId])),
+            $encoder->base64UrlEncode('NOT A JSON'),
+        );
+        $token .= sprintf('.%s', $encoder->base64UrlEncode(Sha256::create()->sign($token, $this->privateKey)));
+
+        $result = $authenticator->authenticate(
+            new ServerRequest(['environment' => ['HTTP_X_AMZN_OIDC_DATA' => $token]])
+        );
+
+        static::assertSame(ResultInterface::FAILURE_CREDENTIALS_INVALID, $result->getStatus());
+        static::assertFalse($result->isValid());
+        $errors = $result->getErrors();
+        static::assertNotEmpty($errors);
+        static::assertSame('Error while decoding from JSON', $errors['message']);
 
         static::assertCount(0, $this->history);
 
@@ -358,18 +413,8 @@ class AlbAuthenticatorTest extends TestCase
         );
 
         // Generate another private key, which is different from the first.
-        $curves = openssl_get_curve_names();
-        assert(is_array($curves));
-        $key = openssl_pkey_new([
-            'digest_alg' => OPENSSL_ALGO_SHA256,
-            'private_key_type' => OPENSSL_KEYTYPE_EC,
-            'curve_name' => $curves[array_key_last($curves)],
-        ]);
-        assert($key !== false);
-        openssl_pkey_export($key, $privateKey);
-        if (is_resource($key)) {
-            openssl_free_key($key);
-        }
+        $privateKey = static::runCmd(['openssl', 'ecparam', '-name', 'prime256v1', '-genkey', '-noout']);
+        assert($privateKey !== '');
         $privateKey = InMemory::plainText($privateKey);
 
         $token = (new Builder(new JoseEncoder(), ChainedFormatter::default()))

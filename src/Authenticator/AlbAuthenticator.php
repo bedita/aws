@@ -25,10 +25,13 @@ use Cake\I18n\FrozenTime;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
+use JsonException;
 use Lcobucci\Clock\FrozenClock;
-use Lcobucci\JWT\Encoding\JoseEncoder;
+use Lcobucci\JWT\Decoder;
+use Lcobucci\JWT\Encoding\CannotDecodeContent;
 use Lcobucci\JWT\Signer\Ecdsa\Sha256;
 use Lcobucci\JWT\Signer\Key;
+use Lcobucci\JWT\SodiumBase64Polyfill;
 use Lcobucci\JWT\Token\Parser as TokenParser;
 use Lcobucci\JWT\UnencryptedToken;
 use Lcobucci\JWT\Validation\Constraint\LooseValidAt;
@@ -185,7 +188,26 @@ class AlbAuthenticator extends TokenAuthenticator
      */
     protected function decodeToken(string $token): ?array
     {
-        $jwt = (new TokenParser(new JoseEncoder()))->parse($token);
+        $jwt = (new TokenParser(new class implements Decoder {
+            /** @inheritdoc */
+            public function jsonDecode(string $json)
+            {
+                try {
+                    return json_decode($json, true, 512, JSON_THROW_ON_ERROR);
+                } catch (JsonException $exception) {
+                    throw CannotDecodeContent::jsonIssues($exception);
+                }
+            }
+
+            /** @inheritdoc */
+            public function base64UrlDecode(string $data): string
+            {
+                return SodiumBase64Polyfill::base642bin(
+                    rtrim($data, '='),
+                    SodiumBase64Polyfill::SODIUM_BASE64_VARIANT_URLSAFE_NO_PADDING,
+                );
+            }
+        }))->parse($token);
         $kid = $jwt->headers()->get('kid');
         if (empty($kid) || !is_string($kid) || !$jwt instanceof UnencryptedToken) {
             return null;
