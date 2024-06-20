@@ -288,9 +288,9 @@ class AlbAuthenticatorTest extends TestCase
         );
 
         $token = (new Builder(new JoseEncoder(), ChainedFormatter::default()))
-            ->issuedAt(FrozenTime::now()->subDay())
-            ->canOnlyBeUsedAfter(FrozenTime::now()->subDay())
-            ->expiresAt(FrozenTime::now()->subDay()->addMinutes(1))
+            ->issuedAt(FrozenTime::now()->subDays(1))
+            ->canOnlyBeUsedAfter(FrozenTime::now()->subDays(1))
+            ->expiresAt(FrozenTime::now()->subDays(1)->addMinutes(1))
             ->relatedTo('gustavo@example.com')
             ->getToken(Sha256::create(), $this->privateKey)
             ->toString();
@@ -329,9 +329,9 @@ class AlbAuthenticatorTest extends TestCase
         );
 
         $token = (new Builder(new JoseEncoder(), ChainedFormatter::default()))
-            ->issuedAt(FrozenTime::now()->subDay())
-            ->canOnlyBeUsedAfter(FrozenTime::now()->subDay())
-            ->expiresAt(FrozenTime::now()->subDay()->addMinutes(1))
+            ->issuedAt(FrozenTime::now()->subDays(1))
+            ->canOnlyBeUsedAfter(FrozenTime::now()->subDays(1))
+            ->expiresAt(FrozenTime::now()->subDays(1)->addMinutes(1))
             ->withHeader('kid', $this->keyId)
             ->relatedTo('gustavo@example.com')
             ->getToken(Sha256::create(), $this->privateKey)
@@ -372,9 +372,9 @@ class AlbAuthenticatorTest extends TestCase
         );
 
         $token = (new Builder(new JoseEncoder(), ChainedFormatter::default()))
-            ->issuedAt(FrozenTime::now()->subDay())
-            ->canOnlyBeUsedAfter(FrozenTime::now()->subDay())
-            ->expiresAt(FrozenTime::now()->subDay()->addMinutes(1))
+            ->issuedAt(FrozenTime::now()->subDays(1))
+            ->canOnlyBeUsedAfter(FrozenTime::now()->subDays(1))
+            ->expiresAt(FrozenTime::now()->subDays(1)->addMinutes(1))
             ->withHeader('kid', $this->keyId)
             ->relatedTo('gustavo@example.com')
             ->getToken(Sha256::create(), $this->privateKey)
