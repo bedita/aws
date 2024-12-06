@@ -3,7 +3,7 @@
     "description": "BEdita 5 plugin for applications that use AWS resources such as S3",
     "type": "cakephp-plugin",
     "require": {
-        "php": "^7.4 || ^8.0",
+        "php": ">= 8.3",
         "ext-openssl": "*",
         "aws/aws-sdk-php": "^3.222",
         "bedita/core": "^5.0.0",
@@ -14,9 +14,9 @@
         "guzzlehttp/guzzle": "^7.4"
     },
     "require-dev": {
-        "cakephp/cakephp-codesniffer": "~4.5.1",
-        "phpunit/phpunit": "^9.5",
-        "phpstan/phpstan": "~1.8.2",
+        "cakephp/cakephp-codesniffer": "~4.7.0",
+        "phpunit/phpunit": "^9.6",
+        "phpstan/phpstan": "~1.10",
         "cakephp/authentication": "^2.9",
         "phpstan/extension-installer": "^1.1",
         "phpstan/phpstan-phpunit": "^1.1"
