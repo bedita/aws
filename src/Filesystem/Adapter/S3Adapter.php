@@ -96,7 +96,7 @@ class S3Adapter extends FilesystemAdapter
      *
      * @return \Aws\S3\S3Client
      */
-    protected function getClient(): S3Client
+    public function getClient(): S3Client
     {
         if (!empty($this->client)) {
             return $this->client;
