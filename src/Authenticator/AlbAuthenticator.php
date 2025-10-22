@@ -29,6 +29,7 @@ use JsonException;
 use Lcobucci\Clock\FrozenClock;
 use Lcobucci\JWT\Decoder;
 use Lcobucci\JWT\Encoding\CannotDecodeContent;
+use Lcobucci\JWT\Signer\Ecdsa\MultibyteStringConverter;
 use Lcobucci\JWT\Signer\Ecdsa\Sha256;
 use Lcobucci\JWT\Signer\Key;
 use Lcobucci\JWT\SodiumBase64Polyfill;
@@ -212,10 +213,10 @@ class AlbAuthenticator extends TokenAuthenticator
         if (empty($kid) || !is_string($kid) || !$jwt instanceof UnencryptedToken) {
             return null;
         }
-
+        $ecdsa = new Sha256(new MultibyteStringConverter());
         (new Validator())->assert(
             $jwt,
-            new SignedWith(new Sha256(), $this->getKey($kid)),
+            new SignedWith($ecdsa, $this->getKey($kid)),
             new LooseValidAt(new FrozenClock(DateTime::now())),
         );
 

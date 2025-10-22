@@ -33,6 +33,7 @@ use GuzzleHttp\Psr7\Response;
 use Lcobucci\JWT\Encoding\ChainedFormatter;
 use Lcobucci\JWT\Encoding\JoseEncoder;
 use Lcobucci\JWT\Signer;
+use Lcobucci\JWT\Signer\Ecdsa\MultibyteStringConverter;
 use Lcobucci\JWT\Signer\Ecdsa\Sha256;
 use Lcobucci\JWT\Signer\Key;
 use Lcobucci\JWT\Signer\Key\InMemory;
@@ -147,7 +148,7 @@ class AlbAuthenticatorTest extends TestCase
             ['region' => 'eu-south-1', 'guzzleClient' => ['handler' => $this->handler]]
         );
 
-        $ecdsa = new Sha256();
+        $ecdsa = new Sha256(new MultibyteStringConverter());
         $token = (new Builder(new JoseEncoder(), ChainedFormatter::default()))
             ->issuedAt(DateTime::now())
             ->canOnlyBeUsedAfter(DateTime::now())
@@ -257,7 +258,7 @@ class AlbAuthenticatorTest extends TestCase
             $encoder->base64UrlEncode($encoder->jsonEncode(['typ' => 'JWT', 'alg' => 'ES256', 'kid' => $this->keyId])),
             $encoder->base64UrlEncode('NOT A JSON'),
         );
-        $ecdsa = new Sha256();
+        $ecdsa = new Sha256(new MultibyteStringConverter());
         $token .= sprintf('.%s', $encoder->base64UrlEncode($ecdsa->sign($token, $this->privateKey)));
 
         $result = $authenticator->authenticate(
@@ -289,7 +290,7 @@ class AlbAuthenticatorTest extends TestCase
             ['region' => 'eu-south-1', 'guzzleClient' => ['handler' => $this->handler]]
         );
 
-        $ecdsa = new Sha256();
+        $ecdsa = new Sha256(new MultibyteStringConverter());
         $token = (new Builder(new JoseEncoder(), ChainedFormatter::default()))
             ->issuedAt(DateTime::now()->subDays(1))
             ->canOnlyBeUsedAfter(DateTime::now()->subDays(1))
@@ -331,7 +332,7 @@ class AlbAuthenticatorTest extends TestCase
             ['region' => 'eu-south-1', 'guzzleClient' => ['handler' => $handler]]
         );
 
-        $ecdsa = new Sha256();
+        $ecdsa = new Sha256(new MultibyteStringConverter());
         $token = (new Builder(new JoseEncoder(), ChainedFormatter::default()))
             ->issuedAt(DateTime::now()->subDays(1))
             ->canOnlyBeUsedAfter(DateTime::now()->subDays(1))
@@ -375,7 +376,7 @@ class AlbAuthenticatorTest extends TestCase
             ['region' => 'eu-south-1', 'guzzleClient' => ['handler' => $this->handler]]
         );
 
-        $ecdsa = new Sha256();
+        $ecdsa = new Sha256(new MultibyteStringConverter());
         $token = (new Builder(new JoseEncoder(), ChainedFormatter::default()))
             ->issuedAt(DateTime::now()->subDays(1))
             ->canOnlyBeUsedAfter(DateTime::now()->subDays(1))
@@ -422,7 +423,7 @@ class AlbAuthenticatorTest extends TestCase
         assert($privateKey !== '');
         $privateKey = InMemory::plainText($privateKey);
 
-        $ecdsa = new Sha256();
+        $ecdsa = new Sha256(new MultibyteStringConverter());
         $token = (new Builder(new JoseEncoder(), ChainedFormatter::default()))
             ->issuedAt(DateTime::now())
             ->canOnlyBeUsedAfter(DateTime::now())
@@ -522,7 +523,7 @@ class AlbAuthenticatorTest extends TestCase
             ['region' => 'eu-south-1', 'guzzleClient' => ['handler' => $this->handler]]
         );
 
-        $ecdsa = new Sha256();
+        $ecdsa = new Sha256(new MultibyteStringConverter());
         $token = (new Builder(new JoseEncoder(), ChainedFormatter::default()))
             ->issuedAt(DateTime::now())
             ->canOnlyBeUsedAfter(DateTime::now())
@@ -571,7 +572,7 @@ class AlbAuthenticatorTest extends TestCase
             ]
         );
 
-        $ecdsa = new Sha256();
+        $ecdsa = new Sha256(new MultibyteStringConverter());
         $token = (new Builder(new JoseEncoder(), ChainedFormatter::default()))
             ->issuedAt(DateTime::now())
             ->canOnlyBeUsedAfter(DateTime::now())
@@ -628,7 +629,7 @@ class AlbAuthenticatorTest extends TestCase
             ]
         );
 
-        $ecdsa = new Sha256();
+        $ecdsa = new Sha256(new MultibyteStringConverter());
         $token = (new Builder(new JoseEncoder(), ChainedFormatter::default()))
             ->issuedAt(DateTime::now())
             ->canOnlyBeUsedAfter(DateTime::now())
