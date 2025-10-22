@@ -19,10 +19,10 @@ use ArrayAccess;
 use ArrayObject;
 use Authentication\Authenticator\ResultInterface;
 use Authentication\Identifier\CallbackIdentifier;
-use Authentication\Identifier\IdentifierInterface;
+use Authentication\Identifier\JwtSubjectIdentifier;
 use BEdita\AWS\Authenticator\AlbAuthenticator;
 use Cake\Http\ServerRequest;
-use Cake\I18n\FrozenTime;
+use Cake\I18n\DateTime;
 use Cake\Utility\Text;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Handler\MockHandler;
@@ -37,13 +37,13 @@ use Lcobucci\JWT\Signer\Key;
 use Lcobucci\JWT\Signer\Key\InMemory;
 use Lcobucci\JWT\Signer\None;
 use Lcobucci\JWT\Token\Builder;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Test {@see \BEdita\AWS\Authenticator\AlbAuthenticator}.
- *
- * @covers \BEdita\AWS\Authenticator\AlbAuthenticator
  */
+#[CoversClass(AlbAuthenticator::class)]
 class AlbAuthenticatorTest extends TestCase
 {
     /**
@@ -148,9 +148,9 @@ class AlbAuthenticatorTest extends TestCase
         );
 
         $token = (new Builder(new JoseEncoder(), ChainedFormatter::default()))
-            ->issuedAt(FrozenTime::now())
-            ->canOnlyBeUsedAfter(FrozenTime::now())
-            ->expiresAt(FrozenTime::now()->addMinute())
+            ->issuedAt(DateTime::now())
+            ->canOnlyBeUsedAfter(DateTime::now())
+            ->expiresAt(DateTime::now()->addMinutes(1))
             ->withHeader('kid', $this->keyId)
             ->relatedTo('gustavo@example.com')
             ->getToken(Sha256::create(), $this->privateKey)
@@ -288,9 +288,9 @@ class AlbAuthenticatorTest extends TestCase
         );
 
         $token = (new Builder(new JoseEncoder(), ChainedFormatter::default()))
-            ->issuedAt(FrozenTime::now()->subDay())
-            ->canOnlyBeUsedAfter(FrozenTime::now()->subDay())
-            ->expiresAt(FrozenTime::now()->subDay()->addMinute())
+            ->issuedAt(DateTime::now()->subDays(1))
+            ->canOnlyBeUsedAfter(DateTime::now()->subDays(1))
+            ->expiresAt(DateTime::now()->subDays(1)->addMinutes(1))
             ->relatedTo('gustavo@example.com')
             ->getToken(Sha256::create(), $this->privateKey)
             ->toString();
@@ -329,9 +329,9 @@ class AlbAuthenticatorTest extends TestCase
         );
 
         $token = (new Builder(new JoseEncoder(), ChainedFormatter::default()))
-            ->issuedAt(FrozenTime::now()->subDay())
-            ->canOnlyBeUsedAfter(FrozenTime::now()->subDay())
-            ->expiresAt(FrozenTime::now()->subDay()->addMinute())
+            ->issuedAt(DateTime::now()->subDays(1))
+            ->canOnlyBeUsedAfter(DateTime::now()->subDays(1))
+            ->expiresAt(DateTime::now()->subDays(1)->addMinutes(1))
             ->withHeader('kid', $this->keyId)
             ->relatedTo('gustavo@example.com')
             ->getToken(Sha256::create(), $this->privateKey)
@@ -372,9 +372,9 @@ class AlbAuthenticatorTest extends TestCase
         );
 
         $token = (new Builder(new JoseEncoder(), ChainedFormatter::default()))
-            ->issuedAt(FrozenTime::now()->subDay())
-            ->canOnlyBeUsedAfter(FrozenTime::now()->subDay())
-            ->expiresAt(FrozenTime::now()->subDay()->addMinute())
+            ->issuedAt(DateTime::now()->subDays(1))
+            ->canOnlyBeUsedAfter(DateTime::now()->subDays(1))
+            ->expiresAt(DateTime::now()->subDays(1)->addMinutes(1))
             ->withHeader('kid', $this->keyId)
             ->relatedTo('gustavo@example.com')
             ->getToken(Sha256::create(), $this->privateKey)
@@ -418,9 +418,9 @@ class AlbAuthenticatorTest extends TestCase
         $privateKey = InMemory::plainText($privateKey);
 
         $token = (new Builder(new JoseEncoder(), ChainedFormatter::default()))
-            ->issuedAt(FrozenTime::now())
-            ->canOnlyBeUsedAfter(FrozenTime::now())
-            ->expiresAt(FrozenTime::now()->addMinute())
+            ->issuedAt(DateTime::now())
+            ->canOnlyBeUsedAfter(DateTime::now())
+            ->expiresAt(DateTime::now()->addMinutes(1))
             ->withHeader('kid', $this->keyId)
             ->relatedTo('gustavo@example.com')
             ->getToken(Sha256::create(), $privateKey)
@@ -459,9 +459,9 @@ class AlbAuthenticatorTest extends TestCase
         );
 
         $token = (new Builder(new JoseEncoder(), ChainedFormatter::default()))
-            ->issuedAt(FrozenTime::now())
-            ->canOnlyBeUsedAfter(FrozenTime::now())
-            ->expiresAt(FrozenTime::now()->addMinute())
+            ->issuedAt(DateTime::now())
+            ->canOnlyBeUsedAfter(DateTime::now())
+            ->expiresAt(DateTime::now()->addMinutes(1))
             ->withHeader('kid', $this->keyId)
             ->relatedTo('gustavo@example.com')
             ->getToken(new None(), InMemory::plainText('key'))
@@ -500,9 +500,9 @@ class AlbAuthenticatorTest extends TestCase
         );
 
         $token = (new Builder(new JoseEncoder(), ChainedFormatter::default()))
-            ->issuedAt(FrozenTime::now())
-            ->canOnlyBeUsedAfter(FrozenTime::now())
-            ->expiresAt(FrozenTime::now()->addMinute())
+            ->issuedAt(DateTime::now())
+            ->canOnlyBeUsedAfter(DateTime::now())
+            ->expiresAt(DateTime::now()->addMinutes(1))
             ->withHeader('kid', $this->keyId)
             ->getToken(Sha256::create(), $this->privateKey)
             ->toString();
@@ -540,7 +540,7 @@ class AlbAuthenticatorTest extends TestCase
             [
                 'returnPayload' => false,
                 'fields' => [
-                    'email' => IdentifierInterface::CREDENTIAL_JWT_SUBJECT,
+                    'email' => JwtSubjectIdentifier::CREDENTIAL_JWT_SUBJECT,
                 ],
                 'region' => 'eu-south-1',
                 'guzzleClient' => ['handler' => $this->handler],
@@ -548,9 +548,9 @@ class AlbAuthenticatorTest extends TestCase
         );
 
         $token = (new Builder(new JoseEncoder(), ChainedFormatter::default()))
-            ->issuedAt(FrozenTime::now())
-            ->canOnlyBeUsedAfter(FrozenTime::now())
-            ->expiresAt(FrozenTime::now()->addMinute())
+            ->issuedAt(DateTime::now())
+            ->canOnlyBeUsedAfter(DateTime::now())
+            ->expiresAt(DateTime::now()->addMinutes(1))
             ->withHeader('kid', $this->keyId)
             ->relatedTo('gustavo@example.com')
             ->getToken(Sha256::create(), $this->privateKey)
@@ -596,7 +596,7 @@ class AlbAuthenticatorTest extends TestCase
             [
                 'returnPayload' => false,
                 'fields' => [
-                    'email' => IdentifierInterface::CREDENTIAL_JWT_SUBJECT,
+                    'email' => JwtSubjectIdentifier::CREDENTIAL_JWT_SUBJECT,
                 ],
                 'region' => 'eu-south-1',
                 'guzzleClient' => ['handler' => $this->handler],
@@ -604,9 +604,9 @@ class AlbAuthenticatorTest extends TestCase
         );
 
         $token = (new Builder(new JoseEncoder(), ChainedFormatter::default()))
-            ->issuedAt(FrozenTime::now())
-            ->canOnlyBeUsedAfter(FrozenTime::now())
-            ->expiresAt(FrozenTime::now()->addMinute())
+            ->issuedAt(DateTime::now())
+            ->canOnlyBeUsedAfter(DateTime::now())
+            ->expiresAt(DateTime::now()->addMinutes(1))
             ->withHeader('kid', $this->keyId)
             ->relatedTo('gustavo@example.com')
             ->getToken(Sha256::create(), $this->privateKey)

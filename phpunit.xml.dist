@@ -10,24 +10,28 @@
   ~
   ~ See LICENSE.LGPL or <http://gnu.org/licenses/lgpl-3.0.html> for more details.
   -->
-<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" colors="true" processIsolation="false" stopOnFailure="false" bootstrap="tests/bootstrap.php" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd">
-  <coverage>
-    <include>
-      <directory suffix=".php">src/</directory>
-    </include>
-  </coverage>
-  <php>
-    <ini name="memory_limit" value="-1"/>
-    <ini name="apc.enable_cli" value="1"/>
-  </php>
-  <!-- Add any additional test suites you want to run here -->
-  <testsuites>
-    <testsuite name="BEdita/AWS">
-      <directory>tests/TestCase/</directory>
-    </testsuite>
-  </testsuites>
-  <!-- Register extension for fixtures -->
-  <extensions>
-    <extension class="\Cake\TestSuite\Fixture\PHPUnitExtension" />
-  </extensions>
+<phpunit
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    colors="true"
+    processIsolation="false"
+    stopOnFailure="false"
+    bootstrap="./tests/bootstrap.php"
+    cacheDirectory=".phpunit.cache"
+    xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/11.1/phpunit.xsd"
+>
+    <source>
+        <include>
+            <directory suffix=".php">./src/</directory>
+        </include>
+    </source>
+    <php>
+        <ini name="memory_limit" value="-1"/>
+        <ini name="apc.enable_cli" value="1"/>
+    </php>
+    <!-- Add any additional test suites you want to run here -->
+    <testsuites>
+        <testsuite name="BEdita AWS">
+            <directory>./tests/TestCase/</directory>
+        </testsuite>
+    </testsuites>
 </phpunit>

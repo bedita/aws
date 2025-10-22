@@ -17,16 +17,18 @@ namespace BEdita\AWS\Test\TestCase;
 
 use BEdita\AWS\Plugin;
 use BEdita\Core\Filesystem\FilesystemRegistry;
-use BEdita\Core\Mailer\Email;
 use Cake\Http\BaseApplication;
 use Cake\Http\MiddlewareQueue;
+use Cake\Mailer\Mailer;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversMethod;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Test {@see \BEdita\AWS\Plugin}.
- *
- * @coversDefaultClass \BEdita\AWS\Plugin
  */
+#[CoversClass(Plugin::class)]
+#[CoversMethod(Plugin::class, 'bootstrap')]
 class PluginTest extends TestCase
 {
     /**
@@ -50,7 +52,6 @@ class PluginTest extends TestCase
      * Test {@see Plugin::bootstrap()} method.
      *
      * @return void
-     * @covers ::bootstrap()
      */
     public function testBootstrap(): void
     {
@@ -61,7 +62,7 @@ class PluginTest extends TestCase
             }
         };
 
-        $mailers = Email::getDsnClassMap();
+        $mailers = Mailer::getDsnClassMap();
         static::assertArrayNotHasKey('ses', $mailers);
         static::assertArrayNotHasKey('sns', $mailers);
 
@@ -70,7 +71,7 @@ class PluginTest extends TestCase
 
         $this->plugin->bootstrap($app);
 
-        $mailers = Email::getDsnClassMap();
+        $mailers = Mailer::getDsnClassMap();
         static::assertArrayHasKey('ses', $mailers);
         static::assertArrayHasKey('sns', $mailers);
 

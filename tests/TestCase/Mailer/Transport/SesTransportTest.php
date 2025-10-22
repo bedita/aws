@@ -19,24 +19,27 @@ use Aws\Command;
 use Aws\Result;
 use Aws\Ses\SesClient;
 use BEdita\AWS\Mailer\Transport\SesTransport;
-use Cake\I18n\FrozenTime;
+use Cake\I18n\DateTime;
 use Cake\Mailer\Message;
 use Cake\Utility\Text;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversMethod;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Test {@see \BEdita\AWS\Mailer\Transport\SesTransport}.
- *
- * @coversDefaultClass \BEdita\AWS\Mailer\Transport\SesTransport
  */
+#[CoversClass(SesTransport::class)]
+#[CoversMethod(SesTransport::class, '__construct')]
+#[CoversMethod(SesTransport::class, 'getClient')]
+#[CoversMethod(SesTransport::class, 'send')]
 class SesTransportTest extends TestCase
 {
     /**
      * Test {@see SesTransport} constructor and {@see SesTransport::getClient()} methods.
      *
      * @return void
-     * @covers ::__construct()
-     * @covers ::getClient()
      */
     public function testConstruct(): void
     {
@@ -81,10 +84,10 @@ class SesTransportTest extends TestCase
      *
      * @return array
      */
-    public function sendProvider(): array
+    public static function sendProvider(): array
     {
         $messageId = sprintf('<%s@example.com>', Text::uuid());
-        $now = FrozenTime::now();
+        $now = DateTime::now();
 
         return [
             'simple' => [
@@ -122,9 +125,8 @@ class SesTransportTest extends TestCase
      * @param array $config Client configuration.
      * @param \Cake\Mailer\Message $email Email message to send.
      * @return void
-     * @dataProvider sendProvider()
-     * @covers ::send()
      */
+    #[DataProvider('sendProvider')]
     public function testSend(string $expectedHeaders, string $expectedMessage, array $config, Message $email): void
     {
         $invocations = 0;
