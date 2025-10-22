@@ -215,7 +215,7 @@ class AlbAuthenticator extends TokenAuthenticator
 
         (new Validator())->assert(
             $jwt,
-            new SignedWith(Sha256::create(), $this->getKey($kid)),
+            new SignedWith(new Sha256(), $this->getKey($kid)),
             new LooseValidAt(new FrozenClock(DateTime::now())),
         );
 
