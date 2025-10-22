@@ -36,7 +36,6 @@ use PHPUnit\Framework\TestCase;
 #[CoversMethod(S3Adapter::class, 'getPublicUrl')]
 #[CoversMethod(S3Adapter::class, 'initialize')]
 #[CoversMethod(S3Adapter::class, 'reformatConfig')]
-#[CoversMethod(S3Adapter::class, 'send')]
 class S3AdapterTest extends TestCase
 {
     /**
