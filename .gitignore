@@ -10,4 +10,5 @@
 /plugins
 /tmp
 .phpunit.result.cache
+.phpunit.cache
 phinx.yml
