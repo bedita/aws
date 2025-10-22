@@ -36,7 +36,6 @@ use Lcobucci\JWT\Signer;
 use Lcobucci\JWT\Signer\Ecdsa\Sha256;
 use Lcobucci\JWT\Signer\Key;
 use Lcobucci\JWT\Signer\Key\InMemory;
-use Lcobucci\JWT\Signer\None;
 use Lcobucci\JWT\Token\Builder;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
