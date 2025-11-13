@@ -19,6 +19,7 @@ use Aws\CloudFront\CloudFrontClient;
 use Aws\CloudFront\Exception\CloudFrontException;
 use Aws\S3\S3ClientInterface;
 use DomainException;
+use Exception;
 use League\Flysystem\AwsS3V3\AwsS3V3Adapter;
 use League\Flysystem\Config;
 
@@ -107,11 +108,29 @@ class AwsS3CloudFrontAdapter extends AwsS3V3Adapter
     }
 
     /**
+     * Check whether a file exists.
+     *
+     * @param string $path The path to check.
+     * @return bool
+     */
+    protected function exists(string $path): bool
+    {
+        $result = false;
+        try {
+            $result = $this->hasCloudFrontConfig() && $this->fileExists($path);
+        } catch (Exception $e) {
+            // Ignore exceptions
+        }
+
+        return $result;
+    }
+
+    /**
      * @inheritDoc
      */
     public function copy(string $source, string $destination, Config $config): void
     {
-        $existed = $this->hasCloudFrontConfig() && $this->fileExists($destination);
+        $existed = $this->exists($destination);
         parent::copy($source, $destination, $config);
         if ($existed) {
             $this->createCloudFrontInvalidation($destination);
@@ -123,7 +142,7 @@ class AwsS3CloudFrontAdapter extends AwsS3V3Adapter
      */
     public function delete(string $path): void
     {
-        $existed = $this->hasCloudFrontConfig() && $this->fileExists($path);
+        $existed = $this->exists($path);
         parent::delete($path);
         if ($existed) {
             $this->createCloudFrontInvalidation($path);
@@ -144,7 +163,7 @@ class AwsS3CloudFrontAdapter extends AwsS3V3Adapter
      */
     public function write(string $path, string $contents, Config $config): void
     {
-        $existed = $this->hasCloudFrontConfig() && $this->fileExists($path);
+        $existed = $this->exists($path);
         parent::write($path, $contents, $config);
         if ($existed) {
             $this->createCloudFrontInvalidation($path);
