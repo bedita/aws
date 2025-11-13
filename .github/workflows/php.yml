@@ -22,12 +22,12 @@ jobs:
   cs:
     uses: bedita/github-workflows/.github/workflows/php-cs.yml@v2
     with:
-      php_versions: '["8.3"]'
+      php_versions: '["8.4"]'
 
   stan:
     uses: bedita/github-workflows/.github/workflows/php-stan.yml@v2
     with:
-      php_versions: '["8.3"]'
+      php_versions: '["8.4"]'
 
   unit:
     name: 'Run unit tests'
@@ -39,6 +39,7 @@ jobs:
       matrix:
         php:
           - '8.3'
+          - '8.4'
 
     env:
       PHP_VERSION: '${{ matrix.php }}'
