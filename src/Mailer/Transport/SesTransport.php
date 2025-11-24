@@ -39,7 +39,7 @@ class SesTransport extends AbstractTransport
     /**
      * @inheritDoc
      */
-    protected $_defaultConfig = [
+    protected array $_defaultConfig = [
         'region' => null,
         'version' => 'latest',
     ];

@@ -24,13 +24,25 @@ use BEdita\AWS\Filesystem\Adapter\AwsS3CloudFrontAdapter;
 use DomainException;
 use InvalidArgumentException;
 use League\Flysystem\Config;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversMethod;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Test {@see \BEdita\AWS\Filesystem\Adapter\AwsS3CloudFrontAdapter}.
- *
- * @coversDefaultClass \BEdita\AWS\Filesystem\Adapter\AwsS3CloudFrontAdapter
  */
+#[CoversClass(AwsS3CloudFrontAdapter::class)]
+#[CoversMethod(AwsS3CloudFrontAdapter::class, '__construct')]
+#[CoversMethod(AwsS3CloudFrontAdapter::class, 'applyCloudFrontPathPrefix')]
+#[CoversMethod(AwsS3CloudFrontAdapter::class, 'copy')]
+#[CoversMethod(AwsS3CloudFrontAdapter::class, 'createCloudFrontInvalidation')]
+#[CoversMethod(AwsS3CloudFrontAdapter::class, 'delete')]
+#[CoversMethod(AwsS3CloudFrontAdapter::class, 'deleteDirectory')]
+#[CoversMethod(AwsS3CloudFrontAdapter::class, 'getCloudFrontClient')]
+#[CoversMethod(AwsS3CloudFrontAdapter::class, 'getDistributionId')]
+#[CoversMethod(AwsS3CloudFrontAdapter::class, 'hasCloudFrontConfig')]
+#[CoversMethod(AwsS3CloudFrontAdapter::class, 'write')]
+
 class AwsS3CloudFrontAdapterTest extends TestCase
 {
     /**
@@ -77,10 +89,6 @@ class AwsS3CloudFrontAdapterTest extends TestCase
      * methods.
      *
      * @return void
-     * @covers ::__construct()
-     * @covers ::getCloudFrontClient()
-     * @covers ::hasCloudFrontConfig()
-     * @covers ::getDistributionId()
      */
     public function testConstruct(): void
     {
@@ -96,7 +104,6 @@ class AwsS3CloudFrontAdapterTest extends TestCase
      * Test {@see AwsS3CloudFrontAdapter} constructor when CloudFront client is missing.
      *
      * @return void
-     * @covers ::__construct()
      */
     public function testConstructMissingCloudFrontClient(): void
     {
@@ -112,10 +119,6 @@ class AwsS3CloudFrontAdapterTest extends TestCase
      * methods with a distribution ID.
      *
      * @return void
-     * @covers ::__construct()
-     * @covers ::getCloudFrontClient()
-     * @covers ::hasCloudFrontConfig()
-     * @covers ::getDistributionId()
      */
     public function testConstructWithDistribution(): void
     {
@@ -133,7 +136,6 @@ class AwsS3CloudFrontAdapterTest extends TestCase
      * Test {@see AwsS3CloudFrontAdapter::copy()} method.
      *
      * @return void
-     * @covers ::copy()
      */
     public function testCopy(): void
     {
@@ -173,7 +175,6 @@ class AwsS3CloudFrontAdapterTest extends TestCase
      * Test {@see AwsS3CloudFrontAdapter::copy()} method with CloudFront config set to a new destination.
      *
      * @return void
-     * @covers ::copy()
      */
     public function testCopyCloudFrontNotExistingObject(): void
     {
@@ -224,9 +225,6 @@ class AwsS3CloudFrontAdapterTest extends TestCase
      * Test {@see AwsS3CloudFrontAdapter::copy()} method with CloudFront config set to an existing destination.
      *
      * @return void
-     * @covers ::copy()
-     * @covers ::applyCloudFrontPathPrefix()
-     * @covers ::createCloudFrontInvalidation()
      */
     public function testCopyCloudFrontExistingObject(): void
     {
@@ -285,7 +283,6 @@ class AwsS3CloudFrontAdapterTest extends TestCase
      * Test {@see AwsS3CloudFrontAdapter::delete()} method.
      *
      * @return void
-     * @covers ::delete()
      */
     public function testDelete(): void
     {
@@ -313,7 +310,6 @@ class AwsS3CloudFrontAdapterTest extends TestCase
      * Test {@see AwsS3CloudFrontAdapter::delete()} method with CloudFront config set to a new destination.
      *
      * @return void
-     * @covers ::delete()
      */
     public function testDeleteCloudFrontNotExistingObject(): void
     {
@@ -353,9 +349,6 @@ class AwsS3CloudFrontAdapterTest extends TestCase
      * Test {@see AwsS3CloudFrontAdapter::delete()} method with CloudFront config set to an existing destination.
      *
      * @return void
-     * @covers ::delete()
-     * @covers ::applyCloudFrontPathPrefix()
-     * @covers ::createCloudFrontInvalidation()
      */
     public function testDeleteCloudFrontExistingObject(): void
     {
@@ -412,7 +405,6 @@ class AwsS3CloudFrontAdapterTest extends TestCase
      * Test {@see AwsS3CloudFrontAdapter::deleteDirectory()} method.
      *
      * @return void
-     * @covers ::deleteDirectory()
      */
     public function testDeleteDir(): void
     {
@@ -446,9 +438,6 @@ class AwsS3CloudFrontAdapterTest extends TestCase
      * Test {@see AwsS3CloudFrontAdapter::deleteDirectory()} method with CloudFront config set.
      *
      * @return void
-     * @covers ::deleteDirectory()
-     * @covers ::applyCloudFrontPathPrefix()
-     * @covers ::createCloudFrontInvalidation()
      */
     public function testDeleteDirCloudFront(): void
     {
@@ -497,7 +486,6 @@ class AwsS3CloudFrontAdapterTest extends TestCase
      * Test {@see AwsS3CloudFrontAdapter::write()} method.
      *
      * @return void
-     * @covers ::write()
      */
     public function testWrite(): void
     {
@@ -526,7 +514,6 @@ class AwsS3CloudFrontAdapterTest extends TestCase
      * Test {@see AwsS3CloudFrontAdapter::write()} method with CloudFront config set to a new destination.
      *
      * @return void
-     * @covers ::write()
      */
     public function testWriteCloudFrontNotExistingObject(): void
     {
@@ -567,9 +554,6 @@ class AwsS3CloudFrontAdapterTest extends TestCase
      * Test {@see AwsS3CloudFrontAdapter::write()} method with CloudFront config set to an existing destination.
      *
      * @return void
-     * @covers ::write()
-     * @covers ::applyCloudFrontPathPrefix()
-     * @covers ::createCloudFrontInvalidation()
      */
     public function testWriteCloudFrontExistingObject(): void
     {

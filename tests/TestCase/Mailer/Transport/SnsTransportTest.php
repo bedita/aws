@@ -20,21 +20,24 @@ use Aws\Result;
 use Aws\Sns\SnsClient;
 use BEdita\AWS\Mailer\Transport\SnsTransport;
 use Cake\Mailer\Message;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversMethod;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Test {@see \BEdita\AWS\Mailer\Transport\SnsTransport}.
- *
- * @coversDefaultClass \BEdita\AWS\Mailer\Transport\SnsTransport
  */
+#[CoversClass(SnsTransport::class)]
+#[CoversMethod(SnsTransport::class, '__construct')]
+#[CoversMethod(SnsTransport::class, 'getClient')]
+#[CoversMethod(SnsTransport::class, 'send')]
 class SnsTransportTest extends TestCase
 {
     /**
      * Test {@see SnsTransport} constructor and {@see SnsTransport::getClient()} methods.
      *
      * @return void
-     * @covers ::__construct()
-     * @covers ::getClient()
      */
     public function testConstruct(): void
     {
@@ -80,7 +83,7 @@ class SnsTransportTest extends TestCase
      *
      * @return array
      */
-    public function sendProvider(): array
+    public static function sendProvider(): array
     {
         return [
             'simple' => [
@@ -157,9 +160,8 @@ class SnsTransportTest extends TestCase
      * @param array $config Client configuration.
      * @param \Cake\Mailer\Message $email Email to send.
      * @return void
-     * @dataProvider sendProvider()
-     * @covers ::send()
      */
+    #[DataProvider('sendProvider')]
     public function testSend(array $expected, array $expectedPayload, array $config, Message $email): void
     {
         $invocations = 0;

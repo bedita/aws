@@ -34,7 +34,7 @@ class S3Adapter extends FilesystemAdapter
     /**
      * @inheritDoc
      */
-    protected $_defaultConfig = [
+    protected array $_defaultConfig = [
         'region' => null,
         'bucket' => null,
         'version' => 'latest',

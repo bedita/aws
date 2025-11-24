@@ -16,13 +16,16 @@ declare(strict_types=1);
 namespace BEdita\AWS\Test\TestCase;
 
 use BEdita\AWS\AwsConfigTrait;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversMethod;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Test {@see \BEdita\AWS\AwsConfigTrait}.
- *
- * @coversDefaultClass \BEdita\AWS\AwsConfigTrait
  */
+#[CoversClass(AwsConfigTrait::class)]
+#[CoversMethod(AwsConfigTrait::class, 'reformatCredentials')]
 class AwsConfigTraitTest extends TestCase
 {
     /**
@@ -30,7 +33,7 @@ class AwsConfigTraitTest extends TestCase
      *
      * @return array[]
      */
-    public function reformatCredentialsProvider(): array
+    public static function reformatCredentialsProvider(): array
     {
         return [
             'no username, no password' => [
@@ -116,9 +119,8 @@ class AwsConfigTraitTest extends TestCase
      * @param array $expected Expected result.
      * @param array $config Input configuration.
      * @return void
-     * @dataProvider reformatCredentialsProvider()
-     * @covers ::reformatCredentials()
      */
+    #[DataProvider('reformatCredentialsProvider')]
     public function testReformatCredentials(array $expected, array $config): void
     {
         $subject = new class {

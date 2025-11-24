@@ -26,7 +26,6 @@ use Cake\Cache\Engine\ArrayEngine;
 use Cake\Cache\Engine\NullEngine;
 use Cake\Core\Configure;
 use Cake\Datasource\ConnectionManager;
-use Cake\I18n\FrozenTime;
 use Cake\Log\Engine\ConsoleLog;
 use Cake\Log\Log;
 use Cake\ORM\TableRegistry;
@@ -47,16 +46,21 @@ $root = $findRoot(__FILE__);
 unset($findRoot);
 chdir($root);
 
-require_once 'vendor/cakephp/cakephp/src/basics.php';
-require_once 'vendor/autoload.php';
+require dirname(__DIR__) . '/vendor/autoload.php';
 
-define('ROOT', $root . DS . 'tests' . DS);
+define('ROOT', dirname(__DIR__));
+define('CAKE_CORE_INCLUDE_PATH', ROOT . DS . 'vendor' . DS . 'cakephp' . DS . 'cakephp');
+define('CORE_PATH', CAKE_CORE_INCLUDE_PATH . DS);
+define('CAKE', CORE_PATH . 'src' . DS);
+
+require CORE_PATH . 'config' . DS . 'bootstrap.php';
+require CAKE . 'functions.php';
+
 define('APP', ROOT . 'TestApp' . DS);
 define('TMP', sys_get_temp_dir() . DS);
 define('LOGS', ROOT . DS . 'logs' . DS);
 define('CONFIG', ROOT . DS . 'config' . DS);
 define('CACHE', TMP . 'cache' . DS);
-define('CORE_PATH', $root . DS . 'vendor' . DS . 'cakephp' . DS . 'cakephp' . DS);
 
 Configure::write('debug', true);
 Configure::write('App', [
@@ -99,7 +103,6 @@ ConnectionManager::alias('test', 'default');
 
 Router::reload();
 Security::setSalt('BEDITA');
-FrozenTime::setTestNow('2022-01-01T00:00:00+01:00');
 
 // clear all before running tests
 TableRegistry::getTableLocator()->clear();

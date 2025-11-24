@@ -19,9 +19,9 @@ use ArrayObject;
 use Authentication\Authenticator\Result;
 use Authentication\Authenticator\ResultInterface;
 use Authentication\Authenticator\TokenAuthenticator;
-use Authentication\Identifier\IdentifierInterface;
+use Authentication\Identifier\JwtSubjectIdentifier;
 use Cake\Cache\Cache;
-use Cake\I18n\FrozenTime;
+use Cake\I18n\DateTime;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
@@ -29,6 +29,7 @@ use JsonException;
 use Lcobucci\Clock\FrozenClock;
 use Lcobucci\JWT\Decoder;
 use Lcobucci\JWT\Encoding\CannotDecodeContent;
+use Lcobucci\JWT\Signer\Ecdsa\MultibyteStringConverter;
 use Lcobucci\JWT\Signer\Ecdsa\Sha256;
 use Lcobucci\JWT\Signer\Key;
 use Lcobucci\JWT\SodiumBase64Polyfill;
@@ -60,11 +61,11 @@ class AlbAuthenticator extends TokenAuthenticator
      *
      * @var array
      */
-    protected $_defaultConfig = [
+    protected array $_defaultConfig = [
         'header' => 'x-amzn-oidc-data',
         'returnPayload' => true,
         'fields' => [
-            IdentifierInterface::CREDENTIAL_JWT_SUBJECT => IdentifierInterface::CREDENTIAL_JWT_SUBJECT,
+            JwtSubjectIdentifier::CREDENTIAL_JWT_SUBJECT => JwtSubjectIdentifier::CREDENTIAL_JWT_SUBJECT,
         ],
         'publicKeyEndpoint' => null,
         'region' => null,
@@ -114,7 +115,7 @@ class AlbAuthenticator extends TokenAuthenticator
             return new Result(null, ResultInterface::FAILURE_CREDENTIALS_INVALID);
         }
 
-        if (empty($result[IdentifierInterface::CREDENTIAL_JWT_SUBJECT])) {
+        if (empty($result[JwtSubjectIdentifier::CREDENTIAL_JWT_SUBJECT])) {
             return new Result(null, ResultInterface::FAILURE_CREDENTIALS_MISSING);
         }
 
@@ -189,7 +190,7 @@ class AlbAuthenticator extends TokenAuthenticator
     protected function decodeToken(string $token): ?array
     {
         $jwt = (new TokenParser(new class implements Decoder {
-            /** @inheritdoc */
+            /** @inheritDoc */
             public function jsonDecode(string $json)
             {
                 try {
@@ -199,7 +200,7 @@ class AlbAuthenticator extends TokenAuthenticator
                 }
             }
 
-            /** @inheritdoc */
+            /** @inheritDoc */
             public function base64UrlDecode(string $data): string
             {
                 return SodiumBase64Polyfill::base642bin(
@@ -212,11 +213,11 @@ class AlbAuthenticator extends TokenAuthenticator
         if (empty($kid) || !is_string($kid) || !$jwt instanceof UnencryptedToken) {
             return null;
         }
-
+        $ecdsa = new Sha256(new MultibyteStringConverter());
         (new Validator())->assert(
             $jwt,
-            new SignedWith(Sha256::create(), $this->getKey($kid)),
-            new LooseValidAt(new FrozenClock(FrozenTime::now())),
+            new SignedWith($ecdsa, $this->getKey($kid)),
+            new LooseValidAt(new FrozenClock(DateTime::now())),
         );
 
         return $jwt->claims()->all();

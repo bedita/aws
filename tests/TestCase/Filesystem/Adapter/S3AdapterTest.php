@@ -21,13 +21,21 @@ use BEdita\AWS\Filesystem\Adapter\AwsS3CloudFrontAdapter;
 use BEdita\AWS\Filesystem\Adapter\S3Adapter;
 use Exception;
 use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversMethod;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Test {@see \BEdita\AWS\Filesystem\Adapter\S3Adapter}
- *
- * @coversDefaultClass \BEdita\AWS\Filesystem\Adapter\S3Adapter
  */
+#[CoversClass(S3Adapter::class)]
+#[CoversMethod(S3Adapter::class, 'buildAdapter')]
+#[CoversMethod(S3Adapter::class, 'getClient')]
+#[CoversMethod(S3Adapter::class, 'getCloudFrontClient')]
+#[CoversMethod(S3Adapter::class, 'getPublicUrl')]
+#[CoversMethod(S3Adapter::class, 'initialize')]
+#[CoversMethod(S3Adapter::class, 'reformatConfig')]
 class S3AdapterTest extends TestCase
 {
     /**
@@ -35,7 +43,7 @@ class S3AdapterTest extends TestCase
      *
      * @return array
      */
-    public function initializeProvider(): array
+    public static function initializeProvider(): array
     {
         return [
             'empty bucket' => [
@@ -174,10 +182,8 @@ class S3AdapterTest extends TestCase
      * @param array|\Exception $expected Expected outcome.
      * @param array $config Adapter configuration.
      * @return void
-     * @dataProvider initializeProvider()
-     * @covers ::initialize()
-     * @covers ::reformatConfig()
      */
+    #[DataProvider('initializeProvider')]
     public function testInitialize($expected, array $config): void
     {
         if ($expected instanceof Exception) {
@@ -196,8 +202,6 @@ class S3AdapterTest extends TestCase
      * Test {@see S3Adapter::getClient()} and {@see S3Adapter::getCloudFrontClient()} methods.
      *
      * @return void
-     * @covers ::getClient()
-     * @covers ::getCloudFrontClient()
      */
     public function testGetClient(): void
     {
@@ -248,7 +252,6 @@ class S3AdapterTest extends TestCase
      * Test {@see S3Adapter::buildAdapter()} method.
      *
      * @return void
-     * @covers ::buildAdapter()
      */
     public function testBuildAdapter(): void
     {
@@ -276,7 +279,6 @@ class S3AdapterTest extends TestCase
      * Test {@see S3Adapter::buildAdapter()} method with a CloudFront distribution.
      *
      * @return void
-     * @covers ::buildAdapter()
      */
     public function testBuildAdapterCloudFront(): void
     {
@@ -304,7 +306,6 @@ class S3AdapterTest extends TestCase
      * Test {@see S3Adapter::getPublicUrl()} method.
      *
      * @return void
-     * @covers ::getPublicUrl()
      */
     public function testGetPublicUrl(): void
     {
@@ -331,7 +332,6 @@ class S3AdapterTest extends TestCase
      * Test {@see S3Adapter::getPublicUrl()} method falling back to default AWS S3 URL..
      *
      * @return void
-     * @covers ::getPublicUrl()
      */
     public function testGetPublicUrlDefaultS3Url(): void
     {

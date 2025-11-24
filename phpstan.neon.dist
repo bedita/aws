@@ -4,6 +4,8 @@ parameters:
   paths:
     - src
     - tests
-  phpVersion: 70400
   level: 8
-  checkMissingIterableValueType: false
+  ignoreErrors:
+    - '#type has no value type specified in iterable type array#'
+    - '#has parameter .* with no value type specified in iterable type array#'
+    - '#has parameter .* with generic interface .* but does not specify its types#'
