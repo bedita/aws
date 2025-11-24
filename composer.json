@@ -6,7 +6,7 @@
         "php": ">= 8.3",
         "ext-openssl": "*",
         "aws/aws-sdk-php": "^3.222",
-        "bedita/core": "6.x-dev",
+        "bedita/core": "^6.0",
         "cakephp/cakephp": "^5",
         "lcobucci/jwt": "^4.2.1",
         "league/flysystem": "^3.30.2",
