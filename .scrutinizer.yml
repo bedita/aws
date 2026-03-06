@@ -1,0 +1,20 @@
+checks:
+  php: true
+filter:
+  paths:
+    - 'src/*'
+  dependency_paths:
+    - 'vendor/*'
+
+build:
+  image: default-jammy
+  environment:
+    node: v22
+  nodes:
+    analysis:
+      environment:
+        php:
+          version: 8.3.16
+      tests:
+        override:
+          - php-scrutinizer-run

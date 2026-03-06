@@ -39,6 +39,7 @@ use Lcobucci\JWT\Validation\Constraint\LooseValidAt;
 use Lcobucci\JWT\Validation\Constraint\SignedWith;
 use Lcobucci\JWT\Validation\Validator;
 use Psr\Http\Message\ServerRequestInterface;
+use function Cake\Core\env;
 
 /**
  * Authenticate users based on the `x-amzn-oidc-data` header set by ALB when OIDC or Cognito authentication is enabled.
