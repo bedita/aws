@@ -22,6 +22,7 @@ use DomainException;
 use Exception;
 use League\Flysystem\AwsS3V3\AwsS3V3Adapter;
 use League\Flysystem\Config;
+use function Cake\Core\triggerWarning;
 
 /**
  * AWS S3 adapter that creates a CloudFront invalidation every time an object is updated or deleted.
