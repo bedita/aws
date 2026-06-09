@@ -21,7 +21,6 @@ use Aws\Sns\SnsClient;
 use BEdita\AWS\Mailer\Transport\SnsTransport;
 use Cake\Mailer\Message;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\CoversMethod;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -29,9 +28,6 @@ use PHPUnit\Framework\TestCase;
  * Test {@see \BEdita\AWS\Mailer\Transport\SnsTransport}.
  */
 #[CoversClass(SnsTransport::class)]
-#[CoversMethod(SnsTransport::class, '__construct')]
-#[CoversMethod(SnsTransport::class, 'getClient')]
-#[CoversMethod(SnsTransport::class, 'send')]
 class SnsTransportTest extends TestCase
 {
     /**

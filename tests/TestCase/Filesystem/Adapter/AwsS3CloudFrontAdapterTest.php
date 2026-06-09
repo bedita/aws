@@ -25,23 +25,12 @@ use DomainException;
 use InvalidArgumentException;
 use League\Flysystem\Config;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\CoversMethod;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Test {@see \BEdita\AWS\Filesystem\Adapter\AwsS3CloudFrontAdapter}.
  */
 #[CoversClass(AwsS3CloudFrontAdapter::class)]
-#[CoversMethod(AwsS3CloudFrontAdapter::class, '__construct')]
-#[CoversMethod(AwsS3CloudFrontAdapter::class, 'applyCloudFrontPathPrefix')]
-#[CoversMethod(AwsS3CloudFrontAdapter::class, 'copy')]
-#[CoversMethod(AwsS3CloudFrontAdapter::class, 'createCloudFrontInvalidation')]
-#[CoversMethod(AwsS3CloudFrontAdapter::class, 'delete')]
-#[CoversMethod(AwsS3CloudFrontAdapter::class, 'deleteDirectory')]
-#[CoversMethod(AwsS3CloudFrontAdapter::class, 'getCloudFrontClient')]
-#[CoversMethod(AwsS3CloudFrontAdapter::class, 'getDistributionId')]
-#[CoversMethod(AwsS3CloudFrontAdapter::class, 'hasCloudFrontConfig')]
-#[CoversMethod(AwsS3CloudFrontAdapter::class, 'write')]
 
 class AwsS3CloudFrontAdapterTest extends TestCase
 {
