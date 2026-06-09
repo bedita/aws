@@ -23,7 +23,6 @@ use Cake\I18n\DateTime;
 use Cake\Mailer\Message;
 use Cake\Utility\Text;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\CoversMethod;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -31,9 +30,6 @@ use PHPUnit\Framework\TestCase;
  * Test {@see \BEdita\AWS\Mailer\Transport\SesTransport}.
  */
 #[CoversClass(SesTransport::class)]
-#[CoversMethod(SesTransport::class, '__construct')]
-#[CoversMethod(SesTransport::class, 'getClient')]
-#[CoversMethod(SesTransport::class, 'send')]
 class SesTransportTest extends TestCase
 {
     /**

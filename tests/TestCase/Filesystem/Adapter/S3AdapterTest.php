@@ -22,7 +22,6 @@ use BEdita\AWS\Filesystem\Adapter\S3Adapter;
 use Exception;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\CoversMethod;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -30,12 +29,6 @@ use PHPUnit\Framework\TestCase;
  * Test {@see \BEdita\AWS\Filesystem\Adapter\S3Adapter}
  */
 #[CoversClass(S3Adapter::class)]
-#[CoversMethod(S3Adapter::class, 'buildAdapter')]
-#[CoversMethod(S3Adapter::class, 'getClient')]
-#[CoversMethod(S3Adapter::class, 'getCloudFrontClient')]
-#[CoversMethod(S3Adapter::class, 'getPublicUrl')]
-#[CoversMethod(S3Adapter::class, 'initialize')]
-#[CoversMethod(S3Adapter::class, 'reformatConfig')]
 class S3AdapterTest extends TestCase
 {
     /**
