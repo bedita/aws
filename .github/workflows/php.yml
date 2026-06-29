@@ -68,7 +68,7 @@ jobs:
         run: 'echo "::set-output name=path::$(composer global config cache-dir)"'
 
       - name: 'Share Composer cache across runs'
-        uses: 'actions/cache@v5'
+        uses: 'actions/cache@v6'
         with:
           path: '${{ steps.cachedir.outputs.path }}'
           key: "composer-${{ matrix.php }}-${{ hashFiles('**/composer.json') }}"
@@ -119,7 +119,7 @@ jobs:
         run: 'echo "::set-output name=path::$(composer global config cache-dir)"'
 
       - name: 'Share Composer cache across runs'
-        uses: 'actions/cache@v5'
+        uses: 'actions/cache@v6'
         with:
           path: '${{ steps.cachedir.outputs.path }}'
           key: "composer-lowest-${{ hashFiles('**/composer.json') }}"
