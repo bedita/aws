@@ -16,10 +16,10 @@
     "require-dev": {
         "cakephp/authentication": "^3.3",
         "cakephp/cakephp-codesniffer": "~4.7.0",
-        "phpstan/phpstan": "^1.10",
-        "phpstan/extension-installer": "^1.0",
-        "phpstan/phpstan-deprecation-rules": "^1.0",
-        "phpstan/phpstan-phpunit": "^1.1",
+        "phpstan/phpstan": "^2.2",
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan-deprecation-rules": "^2.0",
+        "phpstan/phpstan-phpunit": "^2.0",
         "phpunit/phpunit": "^11.5",
         "vimeo/psalm": "^6.8"
     },
