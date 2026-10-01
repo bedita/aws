@@ -64,9 +64,9 @@ class AlbAuthenticatorTest extends TestCase
     /**
      * Requests history.
      *
-     * @var array<int, array{request: \GuzzleHttp\Psr7\Request, response: \GuzzleHttp\Psr7\Response|null, error: \GuzzleHttp\Exception\GuzzleException|null, options: array}>
+     * @var \ArrayObject<int, array{request: \GuzzleHttp\Psr7\Request, response: \GuzzleHttp\Psr7\Response|null, error: \GuzzleHttp\Exception\GuzzleException|null, options: array}>
      */
-    protected array $history = [];
+    protected ArrayObject $history;
 
     /**
      * Guzzle HTTP handler.
@@ -89,14 +89,40 @@ class AlbAuthenticatorTest extends TestCase
         $this->keyId = Text::uuid();
         $this->privateKey = InMemory::plainText($privateKey);
 
+        $this->history = new ArrayObject();
         $this->handler = HandlerStack::create(new MockHandler([new Response(200, [], $publicKey)]));
-        $this->handler->push(Middleware::history($this->history));
+        $this->handler->push(static::historyMiddleware($this->history));
+    }
+
+    /**
+     * Get Guzzle's history middleware.
+     *
+     * Wrapped because `Middleware::history()` takes the container by reference, which PHPStan widens to `array|ArrayAccess`.
+     *
+     * @template T of array
+     * @param \ArrayObject<int, T> $container Container to hold the history.
+     * @return callable(callable): callable
+     */
+    protected static function historyMiddleware(ArrayObject $container): callable
+    {
+        return Middleware::history($container);
+    }
+
+    /**
+     * Get a request recorded in the history.
+     *
+     * @param int $index Index in the history.
+     * @return \GuzzleHttp\Psr7\Request
+     */
+    protected function getRecordedRequest(int $index = 0): Request
+    {
+        return $this->history->getArrayCopy()[$index]['request'];
     }
 
     /**
      * Run a command.
      *
-     * @param string[] $cmd Command to run.
+     * @param list<string> $cmd Command to run.
      * @param string $stdinData Data to provide to command stdin.
      * @return string Data written to stdout.
      */
@@ -121,17 +147,6 @@ class AlbAuthenticatorTest extends TestCase
         }
 
         return (string)$stdoutData;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected function tearDown(): void
-    {
-        unset($this->handler, $this->privateKey, $this->keyId);
-        $this->history = [];
-
-        parent::tearDown();
     }
 
     /**
@@ -170,9 +185,9 @@ class AlbAuthenticatorTest extends TestCase
         static::assertEquals(new ArrayObject(['sub' => 'gustavo@example.com']), $data);
 
         static::assertCount(1, $this->history);
-        static::assertSame('GET', $this->history[0]['request']->getMethod());
+        static::assertSame('GET', $this->getRecordedRequest()->getMethod());
         $expectedRequestUrl = sprintf('https://public-keys.auth.elb.eu-south-1.amazonaws.com/%s', $this->keyId);
-        static::assertSame($expectedRequestUrl, (string)$this->history[0]['request']->getUri());
+        static::assertSame($expectedRequestUrl, (string)$this->getRecordedRequest()->getUri());
 
         $payload = $authenticator->getPayload();
         static::assertIsArray($payload);
@@ -323,7 +338,7 @@ class AlbAuthenticatorTest extends TestCase
         $handler = HandlerStack::create(new MockHandler([
             RequestException::create(new Request('GET', $expectedRequestUrl), new Response(404)),
         ]));
-        $handler->push(Middleware::history($this->history));
+        $handler->push(static::historyMiddleware($this->history));
 
         $authenticator = new AlbAuthenticator(
             new CallbackIdentifier(['callback' => function (): void {
@@ -356,8 +371,8 @@ class AlbAuthenticatorTest extends TestCase
         );
 
         static::assertCount(1, $this->history);
-        static::assertSame('GET', $this->history[0]['request']->getMethod());
-        static::assertSame($expectedRequestUrl, (string)$this->history[0]['request']->getUri());
+        static::assertSame('GET', $this->getRecordedRequest()->getMethod());
+        static::assertSame($expectedRequestUrl, (string)$this->getRecordedRequest()->getUri());
 
         static::assertNull($authenticator->getPayload());
     }
@@ -397,9 +412,9 @@ class AlbAuthenticatorTest extends TestCase
         static::assertSame("The token violates some mandatory constraints, details:\n- The token is expired", $errors['message']);
 
         static::assertCount(1, $this->history);
-        static::assertSame('GET', $this->history[0]['request']->getMethod());
+        static::assertSame('GET', $this->getRecordedRequest()->getMethod());
         $expectedRequestUrl = sprintf('https://public-keys.auth.elb.eu-south-1.amazonaws.com/%s', $this->keyId);
-        static::assertSame($expectedRequestUrl, (string)$this->history[0]['request']->getUri());
+        static::assertSame($expectedRequestUrl, (string)$this->getRecordedRequest()->getUri());
 
         static::assertNull($authenticator->getPayload());
     }
@@ -444,9 +459,9 @@ class AlbAuthenticatorTest extends TestCase
         static::assertSame("The token violates some mandatory constraints, details:\n- Token signature mismatch", $errors['message']);
 
         static::assertCount(1, $this->history);
-        static::assertSame('GET', $this->history[0]['request']->getMethod());
+        static::assertSame('GET', $this->getRecordedRequest()->getMethod());
         $expectedRequestUrl = sprintf('https://public-keys.auth.elb.eu-south-1.amazonaws.com/%s', $this->keyId);
-        static::assertSame($expectedRequestUrl, (string)$this->history[0]['request']->getUri());
+        static::assertSame($expectedRequestUrl, (string)$this->getRecordedRequest()->getUri());
 
         static::assertNull($authenticator->getPayload());
     }
@@ -502,9 +517,9 @@ class AlbAuthenticatorTest extends TestCase
         static::assertSame("The token violates some mandatory constraints, details:\n- Token signer mismatch", $errors['message']);
 
         static::assertCount(1, $this->history);
-        static::assertSame('GET', $this->history[0]['request']->getMethod());
+        static::assertSame('GET', $this->getRecordedRequest()->getMethod());
         $expectedRequestUrl = sprintf('https://public-keys.auth.elb.eu-south-1.amazonaws.com/%s', $this->keyId);
-        static::assertSame($expectedRequestUrl, (string)$this->history[0]['request']->getUri());
+        static::assertSame($expectedRequestUrl, (string)$this->getRecordedRequest()->getUri());
 
         static::assertNull($authenticator->getPayload());
     }
@@ -541,9 +556,9 @@ class AlbAuthenticatorTest extends TestCase
         static::assertEmpty($result->getErrors());
 
         static::assertCount(1, $this->history);
-        static::assertSame('GET', $this->history[0]['request']->getMethod());
+        static::assertSame('GET', $this->getRecordedRequest()->getMethod());
         $expectedRequestUrl = sprintf('https://public-keys.auth.elb.eu-south-1.amazonaws.com/%s', $this->keyId);
-        static::assertSame($expectedRequestUrl, (string)$this->history[0]['request']->getUri());
+        static::assertSame($expectedRequestUrl, (string)$this->getRecordedRequest()->getUri());
     }
 
     /**
@@ -593,9 +608,9 @@ class AlbAuthenticatorTest extends TestCase
         static::assertSame(1, $invoked, 'Expected identifier to be invoked exactly once');
 
         static::assertCount(1, $this->history);
-        static::assertSame('GET', $this->history[0]['request']->getMethod());
+        static::assertSame('GET', $this->getRecordedRequest()->getMethod());
         $expectedRequestUrl = sprintf('https://public-keys.auth.elb.eu-south-1.amazonaws.com/%s', $this->keyId);
-        static::assertSame($expectedRequestUrl, (string)$this->history[0]['request']->getUri());
+        static::assertSame($expectedRequestUrl, (string)$this->getRecordedRequest()->getUri());
 
         $payload = $authenticator->getPayload();
         static::assertIsArray($payload);
@@ -649,9 +664,9 @@ class AlbAuthenticatorTest extends TestCase
         static::assertSame(1, $invoked, 'Expected identifier to be invoked exactly once');
 
         static::assertCount(1, $this->history);
-        static::assertSame('GET', $this->history[0]['request']->getMethod());
+        static::assertSame('GET', $this->getRecordedRequest()->getMethod());
         $expectedRequestUrl = sprintf('https://public-keys.auth.elb.eu-south-1.amazonaws.com/%s', $this->keyId);
-        static::assertSame($expectedRequestUrl, (string)$this->history[0]['request']->getUri());
+        static::assertSame($expectedRequestUrl, (string)$this->getRecordedRequest()->getUri());
 
         $payload = $authenticator->getPayload();
         static::assertIsArray($payload);

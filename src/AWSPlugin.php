@@ -26,7 +26,7 @@ use Cake\Mailer\Mailer;
 /**
  * Plugin class.
  */
-class Plugin extends BasePlugin
+class AWSPlugin extends BasePlugin
 {
     /**
      * @inheritDoc

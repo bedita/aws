@@ -15,7 +15,7 @@ declare(strict_types=1);
 
 namespace BEdita\AWS\Test\TestCase;
 
-use BEdita\AWS\Plugin;
+use BEdita\AWS\AWSPlugin;
 use BEdita\Core\Filesystem\FilesystemRegistry;
 use Cake\Http\BaseApplication;
 use Cake\Http\MiddlewareQueue;
@@ -27,16 +27,16 @@ use PHPUnit\Framework\TestCase;
 /**
  * Test {@see \BEdita\AWS\Plugin}.
  */
-#[CoversClass(Plugin::class)]
-#[CoversMethod(Plugin::class, 'bootstrap')]
+#[CoversClass(AWSPlugin::class)]
+#[CoversMethod(AWSPlugin::class, 'bootstrap')]
 class PluginTest extends TestCase
 {
     /**
      * Test subject.
      *
-     * @var \BEdita\AWS\Plugin
+     * @var \BEdita\AWS\AWSPlugin
      */
-    protected Plugin $plugin;
+    protected AWSPlugin $plugin;
 
     /**
      * @inheritDoc
@@ -45,7 +45,7 @@ class PluginTest extends TestCase
     {
         parent::setUp();
 
-        $this->plugin = new Plugin();
+        $this->plugin = new AWSPlugin();
     }
 
     /**
